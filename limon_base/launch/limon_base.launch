@@ -1,0 +1,11 @@
+<launch>
+    <!-- ttyTHS1 for NVIDIA nano serial port-->
+    <!-- ttyUSB0 for IPC USB serial port -->
+    <arg name="port_name" default="ttyTHS1" />
+    <arg name="odom_topic_name" default="odom" />
+
+    <node name="limon_base_node" pkg="limon_base" type="limon_base_node" output="screen" >
+        <param name="port_name" value="$(arg port_name)" />
+        <param name="odom_topic_name" value="$(arg odom_topic_name)" />
+    </node>
+</launch>
