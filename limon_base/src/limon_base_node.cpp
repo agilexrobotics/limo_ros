@@ -31,7 +31,9 @@ int main(int argc, char* argv[]) {
 
   // connect to the serial port
   if(port_name.find("tty") != port_name.npos){
+    port_name= "/dev/" + port_name;
     robot->Connect(port_name);
+    robot->SetBaudRate(460800);
     robot->EnableCommandedMode();
     ROS_INFO("open the serial port: %s", port_name.c_str());
   }
