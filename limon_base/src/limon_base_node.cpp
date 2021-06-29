@@ -1,7 +1,7 @@
 #include "limon_base/limon_messenger.h"
 #include "limon_base/limon_params.h"
 
-#include <ugv_sdk/scout_base.hpp>
+#include <ugv_sdk/limon_base.h>
 
 using namespace agx;
 using namespace westonrobot;

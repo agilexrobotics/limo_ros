@@ -4,10 +4,9 @@
 #include <nav_msgs/Odometry.h>
 #include <ros/ros.h>
 // #include <tf2_ros/transform_broadcaster.h>
-#include <ugv_sdk/scout_base.hpp>
+#include <ugv_sdk/limon_base.h>
 
 using namespace westonrobot;
-using LimonBase = ScoutBase;
 namespace agx {
 
 class LimonROSMessenger {
