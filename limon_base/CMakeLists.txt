@@ -126,6 +126,9 @@ include_directories(
 #   src/${PROJECT_NAME}/limon_base.cpp
 # )
 
+file(GLOB SOURCE_FILE_NAMES
+  src/*.cpp
+)
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
@@ -134,7 +137,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(limon_base_node src/limon_base_node.cpp)
+add_executable(limon_base_node src/limon_base_node.cpp ${SOURCE_FILE_NAMES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
