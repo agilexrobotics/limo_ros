@@ -45,7 +45,6 @@ class LimonROSMessenger {
   ros::Time current_time_;
 
   void TwistCmdCallback(const geometry_msgs::Twist::ConstPtr &msg);
-  void PublishOdomtryToROS(double linear, double angular, double dt);
 };
 }  // namespace agx
 #endif

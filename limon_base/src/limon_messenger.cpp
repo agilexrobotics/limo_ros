@@ -1,4 +1,5 @@
 #include "limon_base/limon_messenger.h"
+#include <limon_msgs/LimonStatus.h>
 
 using namespace agx;
 
@@ -18,16 +19,18 @@ void LimonROSMessenger::TwistCmdCallback(
         ROS_INFO("get cmd %lf %lf", msg->linear.x, msg->angular.z);
   limon_->SetMotionCommand(msg->linear.x, msg->angular.z);
 }
-void LimonROSMessenger::PublishOdomtryToROS(double linear, double angular,
-                                            double dt) {
-  linear_speed_ = linear;
-  angular_speed_ = angular;
+void LimonROSMessenger::PublishStateToROS() {
+    current_time_ = ros::Time::now();
+    double dt = (current_time_-last_time_).toSec();
+    static bool init_run=true;
 
-  double d_x = linear_speed_ * std::cos(theta_) * dt;
-  double d_y = linear_speed_ * std::sin(theta_) * dt;
-  double d_theta = angular_speed_ * dt;
+    if(init_run){
+        last_time_=current_time_;
+        init_run=false;
+        return;
+    }
 
-  position_x_ += d_x;
-  position_y_ += d_y;
-  theta_ += d_theta;
+    auto state = limon_->GetLimonState();
+
+    limon_msgs::LimonStatus status_msg;
 }
