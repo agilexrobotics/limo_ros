@@ -3,6 +3,7 @@
 
 #include <nav_msgs/Odometry.h>
 #include <ros/ros.h>
+#include <limon_msgs/LimonSetting.h>
 // #include <tf2_ros/transform_broadcaster.h>
 #include <ugv_sdk/limon_base.h>
 
@@ -29,11 +30,12 @@ class LimonROSMessenger {
   std::mutex twist_mutex_;
   geometry_msgs::Twist current_twist_;
 
-  ros::Publisher odom_publisher_;
-  ros::Publisher status_publisher_;
-  ros::Subscriber motion_cmd_sub_;
-  ros::Subscriber light_cmd_sub_;
-//   tf2_ros::TransformBroadcaster tf_broadcaster_;
+  ros::Publisher odom_publisher_;      // robot odometry
+  ros::Publisher status_publisher_;    // robot status
+  ros::Subscriber motion_cmd_sub_;     // get motion control
+  ros::Subscriber light_cmd_sub_;      // get light control
+  ros::Subscriber limon_setting_sub_;  // system setting
+  //   tf2_ros::TransformBroadcaster tf_broadcaster_;
 
   double linear_speed_{0.0};
   double angular_speed_{0.0};
@@ -45,6 +47,7 @@ class LimonROSMessenger {
   ros::Time current_time_;
 
   void TwistCmdCallback(const geometry_msgs::Twist::ConstPtr &msg);
+  void LimonSettingCbk(const limon_msgs::LimonSetting::ConstPtr &msg);
 };
 }  // namespace agx
 #endif
