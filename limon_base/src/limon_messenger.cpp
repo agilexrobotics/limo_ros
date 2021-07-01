@@ -36,7 +36,7 @@ void LimonROSMessenger::TwistCmdCallback(
         steer_cmd = LimonParams::max_steer_angle_central;
       }
       if (steer_cmd < -LimonParams::max_steer_angle_central) {
-        steer_cmd = LimonParams::max_steer_angle_central;
+        steer_cmd = -LimonParams::max_steer_angle_central;
       }
       double phi_i = ConvertCentralAngleToInner(steer_cmd);
       limon_->SetMotionCommand(msg->linear.x, phi_i);

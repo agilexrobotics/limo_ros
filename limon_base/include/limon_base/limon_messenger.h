@@ -43,7 +43,7 @@ class LimonROSMessenger {
 
   static constexpr double l = LimonParams::wheelbase;
   static constexpr double w = LimonParams::track;
-  static constexpr double steer_angle_tolerance = 0.005; // +- 0.287 degrees
+  static constexpr double steer_angle_tolerance = 0.002; // +- 0.287 degrees
 
   double linear_speed_{0.0};
   double angular_speed_{0.0};
