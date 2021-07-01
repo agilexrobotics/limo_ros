@@ -6,6 +6,7 @@
 #include <limon_msgs/LimonSetting.h>
 // #include <tf2_ros/transform_broadcaster.h>
 #include <ugv_sdk/limon_base.h>
+#include "limon_base/limon_params.h"
 
 using namespace westonrobot;
 namespace agx {
@@ -24,6 +25,9 @@ class LimonROSMessenger {
   void SetupSubscription();
   void PublishStateToROS();
 
+  double ConvertInnerAngleToCentral(double angle);
+  double ConvertCentralAngleToInner(double angle);
+
  private:
   LimonBase *limon_;
   ros::NodeHandle *nh_;
@@ -37,6 +41,10 @@ class LimonROSMessenger {
   ros::Subscriber limon_setting_sub_;  // system setting
   //   tf2_ros::TransformBroadcaster tf_broadcaster_;
 
+  static constexpr double l = LimonParams::wheelbase;
+  static constexpr double w = LimonParams::track;
+  static constexpr double steer_angle_tolerance = 0.005; // +- 0.287 degrees
+
   double linear_speed_{0.0};
   double angular_speed_{0.0};
   double position_x_{0.0};
@@ -45,6 +53,7 @@ class LimonROSMessenger {
 
   ros::Time last_time_;
   ros::Time current_time_;
+  uint8_t motion_mode_; // current motion type
 
   void TwistCmdCallback(const geometry_msgs::Twist::ConstPtr &msg);
   void LimonSettingCbk(const limon_msgs::LimonSetting::ConstPtr &msg);
