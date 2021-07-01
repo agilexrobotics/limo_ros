@@ -10,6 +10,8 @@ struct LimonParams {
   static constexpr double max_linear_speed = 1.5;    // m/s
   static constexpr double max_angular_speed = 0.78;  // rad/s
   static constexpr double max_speed_cmd = 10.0;      // rad/s
+
+  static constexpr double max_steer_angle_central = 0.3274; // ~= 18.76
 };
 }  // namespace agx
 #endif

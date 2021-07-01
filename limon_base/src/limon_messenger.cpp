@@ -1,8 +1,8 @@
 #include "limon_base/limon_messenger.h"
 #include <limon_msgs/LimonSetting.h>
 #include <limon_msgs/LimonStatus.h>
-#include "limon_base/limon_params.h"
 #include <math.h>
+#include "limon_base/limon_params.h"
 
 using namespace agx;
 using namespace limon_msgs;
@@ -26,7 +26,25 @@ void LimonROSMessenger::SetupSubscription() {
 void LimonROSMessenger::TwistCmdCallback(
     const geometry_msgs::Twist::ConstPtr &msg) {
   ROS_INFO("get cmd %lf %lf", msg->linear.x, msg->angular.z);
-  limon_->SetMotionCommand(msg->linear.x, msg->angular.z);
+
+  double steer_cmd = msg->angular.z;  // steer angle, in rad
+  switch (motion_mode_) {
+    case LimonSetting::MOTION_MODE_FOUR_WHEEL_DIFF: {
+    } break;
+    case LimonSetting::MOTION_MODE_ACKERMANN: {
+      if (steer_cmd > LimonParams::max_steer_angle_central) {
+        steer_cmd = LimonParams::max_steer_angle_central;
+      }
+      if (steer_cmd < -LimonParams::max_steer_angle_central) {
+        steer_cmd = LimonParams::max_steer_angle_central;
+      }
+      double phi_i = ConvertCentralAngleToInner(steer_cmd);
+      limon_->SetMotionCommand(msg->linear.x, phi_i);
+    } break;
+    default:
+      ROS_INFO("motion mode not supported in receive cmd_vel");
+      break;
+  }
 }
 void LimonROSMessenger::LimonSettingCbk(
     const limon_msgs::LimonSetting::ConstPtr &msg) {
@@ -58,16 +76,32 @@ void LimonROSMessenger::PublishStateToROS() {
   motion_mode_ = status_msg.current_motion_mode;
 
   // calculate the motion state
-  // linear velocity, angular velocity, central steering angle
+  // linear velocity (m/s) , angular velocity (rad/s), central steering angle
+  // (rad)
   double l_v = 0.0, a_v = 0.0, phi = 0.0;
-  // x 、y direction linear velocity , motion radius
+  // x 、y direction linear velocity (m/s), motion radius (rad)
   double x_v = 0.0, y_v = 0.0, radius = 0.0;
-  double phi_i = state.motion_state.steering_angle / 180.0 * M_PI;
+  double phi_i = state.motion_state.steering_angle;  // rad
 
   switch (motion_mode_) {
     case LimonSetting::MOTION_MODE_FOUR_WHEEL_DIFF: {
     } break;
     case LimonSetting::MOTION_MODE_ACKERMANN: {
+      l_v = state.motion_state.linear_velocity;
+      double r = l / std::tan(std::fabs(phi_i)) + w / 2.0;
+      phi = ConvertInnerAngleToCentral(phi_i);
+      if (phi > steer_angle_tolerance) {
+        a_v = l_v / r;
+      } else {
+        a_v = -l_v / r;
+      }
+      x_v = l_v * std::cos(phi);
+      if (l_v >= 0.0) {
+        y_v = l_v * std::sin(phi);
+      } else {
+        y_v = l_v * std::sin(-phi);
+      }
+      radius = r;
     } break;
     default:
       ROS_INFO("motion mode not support: %d", motion_mode_);
@@ -75,12 +109,12 @@ void LimonROSMessenger::PublishStateToROS() {
   }
 
   status_msg.linear_velocity = l_v;
-  status_msg.angular_velocity = 0.0;
+  status_msg.angular_velocity = a_v;
   status_msg.lateral_velocity = 0.0;
-  status_msg.steering_angle = phi_i;
-  status_msg.x_linear_vel = 0.0;
-  status_msg.y_linear_vel = 0.0;
-  status_msg.motion_radius = 0.0;
+  status_msg.steering_angle = phi;
+  status_msg.x_linear_vel = x_v;
+  status_msg.y_linear_vel = y_v;
+  status_msg.motion_radius = radius;
 
   status_publisher_.publish(status_msg);
 
