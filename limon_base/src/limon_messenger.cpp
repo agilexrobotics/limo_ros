@@ -30,6 +30,7 @@ void LimonROSMessenger::TwistCmdCallback(
   double steer_cmd = msg->angular.z;  // steer angle, in rad
   switch (motion_mode_) {
     case LimonSetting::MOTION_MODE_FOUR_WHEEL_DIFF: {
+      limon_->SetMotionCommand(msg->linear.x, 0, 0, msg->angular.z);
     } break;
     case LimonSetting::MOTION_MODE_ACKERMANN: {
       if (steer_cmd > LimonParams::max_steer_angle_central) {
@@ -85,6 +86,10 @@ void LimonROSMessenger::PublishStateToROS() {
 
   switch (motion_mode_) {
     case LimonSetting::MOTION_MODE_FOUR_WHEEL_DIFF: {
+      l_v = state.motion_state.linear_velocity;
+      a_v = state.motion_state.angular_velocity;
+      // x_v
+      // y_v
     } break;
     case LimonSetting::MOTION_MODE_ACKERMANN: {
       l_v = state.motion_state.linear_velocity;
