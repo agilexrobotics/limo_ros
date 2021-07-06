@@ -13,6 +13,8 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   ugv_sdk
   geometry_msgs
+  tf2
+  tf2_ros
 )
 
 ## System dependencies are found with CMake's conventions
