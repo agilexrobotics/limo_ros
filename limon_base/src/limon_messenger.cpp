@@ -123,9 +123,30 @@ void LimonROSMessenger::PublishStateToROS() {
 
   status_publisher_.publish(status_msg);
 
+  PublishOdometryToROS(l_v, a_v, x_v, y_v, dt);
+
   last_time_ = current_time_;
 }
+void LimonROSMessenger::PublishOdometryToROS(double linear, double angle_vel,
+                                             double x_linear_vel,
+                                             double y_linear_vel, double dt) {
+  linear_speed_ = linear;
+  angular_speed_ = angle_vel;
+  x_linear_vel_ = x_linear_vel;
+  y_linear_vel_ = y_linear_vel;
 
+  position_x_ +=
+      cos(theta_) * x_linear_vel_ * dt - sin(theta_) * y_linear_vel_ * dt;
+  position_y_ +=
+      sin(theta_) * x_linear_vel_ * dt + cos(theta_) * y_linear_vel_ * dt;
+  theta_ = theta_ * angular_speed_ * dt;
+
+  if (theta_ > M_PI) {
+    theta_ -= 2 * M_PI;
+  } else if (theta_ < -M_PI) {
+    theta_ += 2 * M_PI;
+  }
+}
 double LimonROSMessenger::ConvertInnerAngleToCentral(double angle) {
   double phi = 0;
   double phi_i = angle;

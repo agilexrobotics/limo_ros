@@ -24,6 +24,9 @@ class LimonROSMessenger {
 
   void SetupSubscription();
   void PublishStateToROS();
+  void PublishOdometryToROS(double linear, double angle_vel,
+                                              double x_linear_vel,
+                                              double y_linear_vel, double dt);
 
   double ConvertInnerAngleToCentral(double angle);
   double ConvertCentralAngleToInner(double angle);
@@ -45,11 +48,14 @@ class LimonROSMessenger {
   static constexpr double w = LimonParams::track;
   static constexpr double steer_angle_tolerance = 0.002; // +- 0.287 degrees
 
+    // speed variables
   double linear_speed_{0.0};
   double angular_speed_{0.0};
   double position_x_{0.0};
   double position_y_{0.0};
   double theta_{0.0};
+  double x_linear_vel_ = 0.0;  // x direction linear velocity
+  double y_linear_vel_ = 0.0;  // y direction linear velocity
 
   ros::Time last_time_;
   ros::Time current_time_;
