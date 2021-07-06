@@ -4,11 +4,13 @@
     <arg name="port_name" default="ttyTHS1"/>
     <arg name="odom_topic_name" default="odom" />
 
-
     <include file="$(find limon_base)/launch/limon_base.launch">
         <arg name="port_name" default="$(arg port_name)" />
         <arg name="odom_topic_name" default="$(arg odom_topic_name)" />
     </include>
 
+    <include file="$(find ydlidar_ros)/launch/X2L.launch">
+    </include>
+    <include file="$(find serial_imu)/launch/hi226.launch">
+    </include>
 </launch>
-
