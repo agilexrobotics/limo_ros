@@ -1,0 +1,58 @@
+<launch>
+    <arg name="scan_topic"  default="scan" />
+    <arg name="initial_pose_x" default="0.0" />
+    <arg name="initial_pose_y" default="0.0" />
+    <arg name="initial_pose_z" default="0.0" />
+
+    <!-- AMCL -->
+    <node pkg="amcl" type="amcl" name="amcl" >
+        <param name="min_particles"  value="500"/>
+        <param name="max_particles"  value="3000" />
+        <!-- 真实概率分布与估计概率分部之间的误差 -->
+        <param name="kld_err" value="0.02"/> 
+        <!-- 移动多少米就更新粒子 -->
+        <param name="update_min_d" value="0.20" />
+        <!-- 移动多少弧度就更新粒子 -->
+        <param name="update_min_a" value="0.20" />
+        <!-- 粒子的重采样间隔，2~5就好 -->
+        <param name="resample_interval" value="1" />
+        <!-- 要监听TF变化,这个值表示可以相信多少秒前接受到的TF变化，一般略高于 1/(tf变化频率) -->
+        <param name="transform_tolerance" value="0.5" />
+        <!--  -->
+        <param name="recovery_alpha_slow" value="0.00" />
+        <!--  -->
+        <param name="recovery_alpha_fast" value="0.00" />
+        <param name="initial_pose_x" value="$(arg initial_pose_x)" />
+        <param name="initial_pose_y" value="$(arg initial_pose_y)" />
+        <param name="initial_pose_a" value="$(arg initial_pose_a)" />
+        <param name="gui_publish_rate" value="10" />
+
+        <remap from="scan" to="$(arg scan_topic)"/>
+
+        <param name="laser_max_range" value="3.5" />
+        <param name="laser_max_beams" value="180" />
+        <param name="laser_z_hit" value="0.5" />
+        <param name="laser_z_short" value="0.05" />
+        <param name="laser_z_max" value="0.05" />
+        <param name="laser_z_rand" value="0.5" />
+        <param name="laser_sigma_hit" value="0.2" />
+        <param name="laser_lambda_short" value="0.1" />
+        <param name="laser_likelihood_max_dist" value="2.0" />
+        <param name="laser_model_type" value="likelihood_field" />
+
+        <!-- 可选: diff, omni, diff-corrected, omni-corrected -->
+        <!-- omni是全向轮，y 方向有速度 -->
+        <param name="odom_model_type" value="diff" />
+        <!-- 机器人在转角分量的运动噪声，增大该值，机器人发生有旋转运动时，就会出现扇形噪声粒子云 -->
+        <param name="odom_alpha1" value="0.1" />
+        <!-- 机器人在横向分量运动噪声，噪声在机器人左右两边分布 -->
+        <param name="odom_alpha2" value="0.1" />
+        <!-- 纵向分量运动噪声，沿着机器人前进方向分布 -->
+        <param name="odom_alpha3" value="0.1" />
+        <!-- 斜角方向的运动噪声 -->
+        <param name="odom_alpha4" value="0.1" />
+        <!-- 对差分轮无用，只对全向轮有用 -->
+        <param name="odom_frame_id" value="odom" />
+        <param name="base_frame_id" value="base_footprint" />
+    </node>
+</launch>

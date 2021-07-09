@@ -13,4 +13,7 @@
     </include>
     <include file="$(find serial_imu)/launch/hi226.launch">
     </include>
+
+    <!-- display -->
+    <node name="rviz" pkg="rviz" type="rviz" required="true" args="-d $(find limon_bringup)/config_files/demo_2d.rviz" />
 </launch>
