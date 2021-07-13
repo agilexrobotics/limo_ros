@@ -8,6 +8,14 @@
 using namespace agx;
 using namespace limon_msgs;
 
+//for template use
+double FilteVelocity(float data){
+  if(std::fabs(data) <= 0.02){
+    return 0.0;
+  }
+  return data;
+}
+
 LimonROSMessenger::LimonROSMessenger(ros::NodeHandle *nh)
     : limon_(nullptr), nh_(nh) {}
 LimonROSMessenger::LimonROSMessenger(LimonBase *limon, ros::NodeHandle *nh)
@@ -83,17 +91,17 @@ void LimonROSMessenger::PublishStateToROS() {
   double l_v = 0.0, a_v = 0.0, phi = 0.0;
   // x 、y direction linear velocity (m/s), motion radius (rad)
   double x_v = 0.0, y_v = 0.0, radius = 0.0;
-  double phi_i = state.motion_state.steering_angle;  // rad
+  double phi_i = FilteVelocity(state.motion_state.steering_angle);  // rad
 
   switch (motion_mode_) {
     case LimonSetting::MOTION_MODE_FOUR_WHEEL_DIFF: {
-      l_v = state.motion_state.linear_velocity;
-      a_v = state.motion_state.angular_velocity;
+      l_v = FilteVelocity(state.motion_state.linear_velocity);
+      a_v = FilteVelocity(state.motion_state.angular_velocity);
       // x_v
       // y_v
     } break;
     case LimonSetting::MOTION_MODE_ACKERMANN: {
-      l_v = state.motion_state.linear_velocity;
+      l_v = FilteVelocity(state.motion_state.linear_velocity);
       double r = l / std::tan(std::fabs(phi_i)) + w / 2.0;
       phi = ConvertInnerAngleToCentral(phi_i);
       if (phi > steer_angle_tolerance) {
