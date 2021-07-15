@@ -8,9 +8,9 @@
 using namespace agx;
 using namespace limon_msgs;
 
-//for template use
-double FilteVelocity(float data){
-  if(std::fabs(data) <= 0.02){
+// for template use
+double FilteVelocity(float data) {
+  if (std::fabs(data) <= 0.02) {
     return 0.0;
   }
   return data;
@@ -97,8 +97,8 @@ void LimonROSMessenger::PublishStateToROS() {
     case LimonSetting::MOTION_MODE_FOUR_WHEEL_DIFF: {
       l_v = FilteVelocity(state.motion_state.linear_velocity);
       a_v = FilteVelocity(state.motion_state.angular_velocity);
-      // x_v
-      // y_v
+      x_v = l_v;
+      y_v = 0;
     } break;
     case LimonSetting::MOTION_MODE_ACKERMANN: {
       l_v = FilteVelocity(state.motion_state.linear_velocity);
@@ -132,6 +132,8 @@ void LimonROSMessenger::PublishStateToROS() {
 
   status_publisher_.publish(status_msg);
 
+  printf("l_v: %f, a_v: %f, x_v: %f, y_v: %f, dt: %f \n\n", l_v, a_v, x_v, y_v,
+         dt);
   PublishOdometryToROS(l_v, a_v, x_v, y_v, dt);
 
   last_time_ = current_time_;
@@ -148,13 +150,15 @@ void LimonROSMessenger::PublishOdometryToROS(double linear, double angle_vel,
       cos(theta_) * x_linear_vel_ * dt - sin(theta_) * y_linear_vel_ * dt;
   position_y_ +=
       sin(theta_) * x_linear_vel_ * dt + cos(theta_) * y_linear_vel_ * dt;
-  theta_ = theta_ * angular_speed_ * dt;
+  theta_ += angular_speed_ * dt;
 
   if (theta_ > M_PI) {
     theta_ -= 2 * M_PI;
   } else if (theta_ < -M_PI) {
     theta_ += 2 * M_PI;
   }
+
+  printf("angle: %f\n\n", theta_ / M_PI * 180.0);
 
   geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(theta_);
 
@@ -186,6 +190,8 @@ void LimonROSMessenger::PublishOdometryToROS(double linear, double angle_vel,
   odom_msg.twist.twist.linear.y = y_linear_vel_;
   odom_msg.twist.twist.angular.z = angular_speed_;
   odom_publisher_.publish(odom_msg);
+  printf("x: %f, y: %f, lx: %f, ly %f, a_z: %f\n", position_x_, position_y_,
+         x_linear_vel_, y_linear_vel_, angular_speed_);
 }
 double LimonROSMessenger::ConvertInnerAngleToCentral(double angle) {
   double phi = 0;
