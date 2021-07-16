@@ -21,7 +21,7 @@ class LimonROSMessenger {
   std::string odom_frame_;
   std::string base_frame_;
   std::string odom_topic_name_;
-  bool pub_odom_tf_{true};
+  bool pub_odom_tf_{false};
 
   int sim_control_rate_ = 50;
 

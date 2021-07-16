@@ -85,6 +85,10 @@ void LimonROSMessenger::PublishStateToROS() {
   status_msg.current_motion_mode = state.system_state.motion_mode;
   motion_mode_ = status_msg.current_motion_mode;
 
+  // TODO: 底层反馈的线速度，角速度和实际反了
+  state.motion_state.linear_velocity = -state.motion_state.linear_velocity;
+  state.motion_state.angular_velocity = -state.motion_state.angular_velocity;
+
   // calculate the motion state
   // linear velocity (m/s) , angular velocity (rad/s), central steering angle
   // (rad)
@@ -189,9 +193,18 @@ void LimonROSMessenger::PublishOdometryToROS(double linear, double angle_vel,
   odom_msg.twist.twist.linear.x = x_linear_vel_;
   odom_msg.twist.twist.linear.y = y_linear_vel_;
   odom_msg.twist.twist.angular.z = angular_speed_;
+
+  odom_msg.pose.covariance[0] = 0.1;
+  odom_msg.pose.covariance[7] = 0.1;
+  odom_msg.pose.covariance[14] = 0.1;
+  odom_msg.pose.covariance[21] = 1.0;
+  odom_msg.pose.covariance[28] = 1.0;
+  odom_msg.pose.covariance[35] = 1.0;
+
+
   odom_publisher_.publish(odom_msg);
-  printf("x: %f, y: %f, lx: %f, ly %f, a_z: %f\n", position_x_, position_y_,
-         x_linear_vel_, y_linear_vel_, angular_speed_);
+  // printf("x: %f, y: %f, lx: %f, ly %f, a_z: %f\n", position_x_, position_y_,
+        //  x_linear_vel_, y_linear_vel_, angular_speed_);
 }
 double LimonROSMessenger::ConvertInnerAngleToCentral(double angle) {
   double phi = 0;

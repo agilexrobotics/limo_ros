@@ -3,9 +3,10 @@ import time
 import adafruit_mpu6050
 
 # https://github.com/adafruit/Adafruit_CircuitPython_MPU6050/blob/main/examples/mpu6050_simpletest.py
+# 这个脚本各种报错，无法使用
 
 i2c = board.I2C()
-mpu = adafruit_mpu6050.MPU6050()
+mpu = adafruit_mpu6050.MPU6050(i2c)
 
 while True:
     # 线加速度
