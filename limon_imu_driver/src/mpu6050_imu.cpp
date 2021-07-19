@@ -151,7 +151,7 @@ void SerialRead::ParseAngularVelocity(const std::vector<uint8_t>& data) {
   Wy_ *= DEG_TO_RAD;  // rad/s
   Wz_ *= DEG_TO_RAD;  // rad/s
 
-  printf("Wx: %f, Wy: %f, Wz: %f, Temp: %f\n", Wx_, Wy_, Wz_, temperature);
+  //   printf("Wx: %f, Wy: %f, Wz: %f, Temp: %f\n", Wx_, Wy_, Wz_, temperature);
 }
 void SerialRead::ParseAngle(const std::vector<uint8_t>& data) {
   uint8_t sum = 0;

@@ -1,0 +1,4 @@
+<launch>
+    <!-- mpu6050 imu driver, publish sensor_msgs/Imu data  -->
+    <node name="limon_imu_driver" value="limon_imu_driver" type="limon_imu_driver" output="screen" />
+</launch>
