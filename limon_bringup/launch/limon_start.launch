@@ -11,8 +11,13 @@
 
     <include file="$(find ydlidar_ros)/launch/X2L.launch">
     </include>
-    <include file="$(find serial_imu)/launch/hi226.launch">
-    </include>
+
+    <!-- hi226 imu -->
+    <!-- <include file="$(find serial_imu)/launch/hi226.launch" /> -->
+
+    <!-- mpu6050 imu -->
+    <node name="limon_imu_driver" pkg="limon_imu_driver" type="limon_imu_driver" output="screen" />
+    
 
     <!-- display -->
     <node name="rviz" pkg="rviz" type="rviz" required="true" args="-d $(find limon_bringup)/config_files/demo_2d.rviz" />

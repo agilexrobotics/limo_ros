@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <tf/tf.h>
 
 using namespace agx;
 #define MAX_BUFF_SIZE 10240
@@ -119,14 +120,14 @@ void SerialRead::ParseAcceleration(const std::vector<uint8_t>& data) {
   }
 
   // clang-format off
-  float Ax = ((int16_t)((int16_t)data[3] << 8 | data[2])) / 32768.0 * 16.0*9.8;  // m/s^2
-  float Ay = ((int16_t)((int16_t)data[5] << 8 | data[4])) / 32768.0 * 16.0*9.8;  // m/s^2
-  float Az = ((int16_t)((int16_t)data[7] << 8 | data[6])) / 32768.0 * 16.0*9.8;  // m/s^2
-  float temperature = ((int16_t)((int16_t)data[9] << 8 | data[8])) / 100.0;  // degree
+  Ax_ = ((int16_t)((int16_t)data[3] << 8 | data[2])) / 32768.0 * 16.0 * 9.8;  // m/s^2
+  Ay_ = ((int16_t)((int16_t)data[5] << 8 | data[4])) / 32768.0 * 16.0 * 9.8;  // m/s^2
+  Az_ = ((int16_t)((int16_t)data[7] << 8 | data[6])) / 32768.0 * 16.0 * 9.8;  // m/s^2
+  temperature_ = ((int16_t)((int16_t)data[9] << 8 | data[8])) / 100.0;  // degree
   // clang-format on
 
   //   printf("sum: %02x, %02x\n", sum, data[10]);
-  printf("Ax: %f, Ay: %f, Az: %f, Temp: %f\n", Ax, Ay, Az, temperature);
+  printf("Ax: %f, Ay: %f, Az: %f, Temp: %f\n", Ax_, Ay_, Az_, temperature_);
 }
 void SerialRead::ParseAngularVelocity(const std::vector<uint8_t>& data) {
   uint8_t sum = 0;
@@ -139,14 +140,14 @@ void SerialRead::ParseAngularVelocity(const std::vector<uint8_t>& data) {
   }
 
   // clang-format off
-  float Wx = ((int16_t)((int16_t)data[3] << 8 | data[2])) / 32768.0 * 2000.0;  // degree/s
-  float Wy = ((int16_t)((int16_t)data[5] << 8 | data[4])) / 32768.0 * 2000.0;  // degree/s
-  float Wz = ((int16_t)((int16_t)data[7] << 8 | data[6])) / 32768.0 * 2000.0;  // degree/s
+  Wx_ = ((int16_t)((int16_t)data[3] << 8 | data[2])) / 32768.0 * 2000.0;  // degree/s
+  Wy_ = ((int16_t)((int16_t)data[5] << 8 | data[4])) / 32768.0 * 2000.0;  // degree/s
+  Wz_ = ((int16_t)((int16_t)data[7] << 8 | data[6])) / 32768.0 * 2000.0;  // degree/s
   float temperature = ((int16_t)((int16_t)data[9] << 8 | data[8])) / 100.0;  // degree
   // clang-format on
 
   //   printf("sum: %02x, %02x\n", sum, data[10]);
-  printf("Wx: %f, Wy: %f, Wz: %f, Temp: %f\n", Wx, Wy, Wz, temperature);
+  printf("Wx: %f, Wy: %f, Wz: %f, Temp: %f\n", Wx_, Wy_, Wz_, temperature);
 }
 void SerialRead::ParseAngle(const std::vector<uint8_t>& data) {
   uint8_t sum = 0;
@@ -159,15 +160,51 @@ void SerialRead::ParseAngle(const std::vector<uint8_t>& data) {
   }
 
   // clang-format off
-  float roll =  ((int16_t)((int16_t)data[3] << 8 | data[2])) / 32768.0 * 180.0;   // degree
-  float pitch = ((int16_t)((int16_t)data[5] << 8 | data[4])) / 32768.0 * 180.0;  // degree
-  float yaw =   ((int16_t)((int16_t)data[7] << 8 | data[6])) / 32768.0 * 180.0;    // degree
+  roll_ =  ((int16_t)((int16_t)data[3] << 8 | data[2])) / 32768.0 * 180.0;   // degree
+  pitch_ = ((int16_t)((int16_t)data[5] << 8 | data[4])) / 32768.0 * 180.0;  // degree
+  yaw_ =   ((int16_t)((int16_t)data[7] << 8 | data[6])) / 32768.0 * 180.0;    // degree
   float temperature = ((int16_t)((int16_t)data[9] << 8 | data[8])) / 100.0;  // degree
   // clang-format on
 
   //   printf("sum: %02x, %02x\n", sum, data[10]);
-  printf("roll: %f, pitch: %f, yaw: %f, Temp: %f\n", roll, pitch, yaw,
+  printf("roll: %f, pitch: %f, yaw: %f, Temp: %f\n", roll_, pitch_, yaw_,
          temperature);
+
+  roll_ = roll_ * DEG_TO_RAD;    // rad
+  pitch_ = pitch_ * DEG_TO_RAD;  // rad
+  yaw_ = yaw_ * DEG_TO_RAD;      // rad
+}
+
+sensor_msgs::Imu SerialRead::GetImuData() {
+  std::lock_guard<std::mutex> lock(state_mutex_);
+  imu_data_.linear_acceleration.x = Ax_;
+  imu_data_.linear_acceleration.y = Ay_;
+  imu_data_.linear_acceleration.z = Az_;
+
+  imu_data_.angular_velocity.x = Wx_;
+  imu_data_.angular_velocity.y = Wy_;
+  imu_data_.angular_velocity.z = Wz_;
+
+  tf::Quaternion q;
+  q.setRPY(roll_, pitch_, yaw_);
+  imu_data_.orientation.x = q.x();
+  imu_data_.orientation.y = q.y();
+  imu_data_.orientation.z = q.z();
+  imu_data_.orientation.w = q.w();
+
+  imu_data_.linear_acceleration_covariance[0] = 1.0f;
+  imu_data_.linear_acceleration_covariance[4] = 1.0f;
+  imu_data_.linear_acceleration_covariance[8] = 1.0f;
+
+  imu_data_.angular_velocity_covariance[0] = 1e-6;
+  imu_data_.angular_velocity_covariance[4] = 1e-6;
+  imu_data_.angular_velocity_covariance[8] = 1e-6;
+
+  imu_data_.orientation_covariance[0] = 1e-6;
+  imu_data_.orientation_covariance[4] = 1e-6;
+  imu_data_.orientation_covariance[8] = 1e-6;
+
+  return imu_data_;
 }
 
 // main
@@ -179,14 +216,21 @@ int main(int argc, char* argv[]) {
   ros::init(argc, argv, "mpu6050_imu");
   ROS_INFO("mpu6050 imu read driver start...");
 
+  ros::NodeHandle nh;
   SerialRead sr;
   sr.Connect(
       "/dev/ttyUSB1", 115200,
       std::bind(&SerialRead::ReadRawSerialData, &sr, std::placeholders::_1,
                 std::placeholders::_2, std::placeholders::_3));
 
+  ros::Publisher imu_pub = nh.advertise<sensor_msgs::Imu>("/imu", 10);
+
+  ros::Rate r(50);
   while (ros::ok()) {
-    ros::spin();
+    auto imu_msg = sr.GetImuData();
+    imu_pub.publish(imu_msg);
+    ros::spinOnce();
+    r.sleep();
   }
 
   ROS_INFO("mpu6050 main thread exist!");

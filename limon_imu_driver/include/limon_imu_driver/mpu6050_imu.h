@@ -1,10 +1,11 @@
 
+#include <sensor_msgs/Imu.h>
 #include <async_port/async_serial.hpp>
-
 using namespace westonrobot;
 
 #define MPU6050_FRAME_LEN 11
 #define TTL_FRAME_START 0x55
+#define DEG_TO_RAD (0.01745329)
 
 namespace agx {
 
@@ -30,6 +31,7 @@ class SerialRead {
   void ParseAcceleration(const std::vector<uint8_t>& data);
   void ParseAngularVelocity(const std::vector<uint8_t>& data);
   void ParseAngle(const std::vector<uint8_t>& data);
+  sensor_msgs::Imu GetImuData();
 
  private:
   std::shared_ptr<AsyncSerial> serial_;
@@ -40,5 +42,18 @@ class SerialRead {
   uint32_t watchdog_counter_{0};
   std::vector<uint8_t> binarystream_;
   char* bytestream_{nullptr};
+  sensor_msgs::Imu imu_data_;
+
+ protected:
+  float Ax_{0.0};           // m/s^2
+  float Ay_{0.0};           // m/s^2
+  float Az_{9.8};           // m/s^2
+  float temperature_{0.0};  // degree
+  float Wx_{0.0};           // degree/s
+  float Wy_{0.0};           // degree/s
+  float Wz_{0.0};           // degree/s
+  float roll_{0.0};         // rad
+  float pitch_{0.0};        // rad
+  float yaw_{0.0};          // rad
 };
 };  // namespace agx
