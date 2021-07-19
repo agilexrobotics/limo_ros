@@ -127,7 +127,8 @@ void SerialRead::ParseAcceleration(const std::vector<uint8_t>& data) {
   // clang-format on
 
   //   printf("sum: %02x, %02x\n", sum, data[10]);
-  printf("Ax: %f, Ay: %f, Az: %f, Temp: %f\n", Ax_, Ay_, Az_, temperature_);
+  //   printf("Ax: %f, Ay: %f, Az: %f, Temp: %f\n", Ax_, Ay_, Az_,
+  //   temperature_);
 }
 void SerialRead::ParseAngularVelocity(const std::vector<uint8_t>& data) {
   uint8_t sum = 0;
@@ -146,7 +147,10 @@ void SerialRead::ParseAngularVelocity(const std::vector<uint8_t>& data) {
   float temperature = ((int16_t)((int16_t)data[9] << 8 | data[8])) / 100.0;  // degree
   // clang-format on
 
-  //   printf("sum: %02x, %02x\n", sum, data[10]);
+  Wx_ *= DEG_TO_RAD;  // rad/s
+  Wy_ *= DEG_TO_RAD;  // rad/s
+  Wz_ *= DEG_TO_RAD;  // rad/s
+
   printf("Wx: %f, Wy: %f, Wz: %f, Temp: %f\n", Wx_, Wy_, Wz_, temperature);
 }
 void SerialRead::ParseAngle(const std::vector<uint8_t>& data) {
@@ -167,8 +171,8 @@ void SerialRead::ParseAngle(const std::vector<uint8_t>& data) {
   // clang-format on
 
   //   printf("sum: %02x, %02x\n", sum, data[10]);
-  printf("roll: %f, pitch: %f, yaw: %f, Temp: %f\n", roll_, pitch_, yaw_,
-         temperature);
+  //   printf("roll: %f, pitch: %f, yaw: %f, Temp: %f\n", roll_, pitch_, yaw_,
+  //  temperature);
 
   roll_ = roll_ * DEG_TO_RAD;    // rad
   pitch_ = pitch_ * DEG_TO_RAD;  // rad
@@ -223,7 +227,7 @@ int main(int argc, char* argv[]) {
       std::bind(&SerialRead::ReadRawSerialData, &sr, std::placeholders::_1,
                 std::placeholders::_2, std::placeholders::_3));
 
-  ros::Publisher imu_pub = nh.advertise<sensor_msgs::Imu>("/imu", 10);
+  ros::Publisher imu_pub = nh.advertise<sensor_msgs::Imu>("/imu", 10, true);
 
   ros::Rate r(50);
   while (ros::ok()) {

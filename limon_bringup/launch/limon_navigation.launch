@@ -7,7 +7,7 @@
     <!-- load map -->
     <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)" />
 
-    <!-- robot pose ekf -->
+    <!-- use robot pose ekf to provide odometry-->
     <node pkg="robot_pose_ekf" name="robot_pose_ekf" type="robot_pose_ekf">
         <param name="output_frame" value="odom" />
         <param name="base_footprint_frame" value="base_link"/>
