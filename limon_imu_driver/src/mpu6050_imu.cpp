@@ -181,6 +181,10 @@ void SerialRead::ParseAngle(const std::vector<uint8_t>& data) {
 
 sensor_msgs::Imu SerialRead::GetImuData() {
   std::lock_guard<std::mutex> lock(state_mutex_);
+
+  imu_data_.header.stamp = ros::Time::now();
+  imu_data_.header.frame_id = "imu_link";
+
   imu_data_.linear_acceleration.x = Ax_;
   imu_data_.linear_acceleration.y = Ay_;
   imu_data_.linear_acceleration.z = Az_;
