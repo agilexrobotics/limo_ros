@@ -136,8 +136,8 @@ void LimonROSMessenger::PublishStateToROS() {
 
   status_publisher_.publish(status_msg);
 
-  printf("l_v: %f, a_v: %f, x_v: %f, y_v: %f, dt: %f \n\n", l_v, a_v, x_v, y_v,
-         dt);
+  // printf("l_v: %f, a_v: %f, x_v: %f, y_v: %f, dt: %f \n\n", l_v, a_v, x_v,
+  // y_v, dt);
   PublishOdometryToROS(l_v, a_v, x_v, y_v, dt);
 
   last_time_ = current_time_;
@@ -162,7 +162,7 @@ void LimonROSMessenger::PublishOdometryToROS(double linear, double angle_vel,
     theta_ += 2 * M_PI;
   }
 
-  printf("angle: %f\n\n", theta_ / M_PI * 180.0);
+  // printf("angle: %f\n\n", theta_ / M_PI * 180.0);
 
   geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(theta_);
 
@@ -201,10 +201,9 @@ void LimonROSMessenger::PublishOdometryToROS(double linear, double angle_vel,
   odom_msg.pose.covariance[28] = 1.0;
   odom_msg.pose.covariance[35] = 1.0;
 
-
   odom_publisher_.publish(odom_msg);
   // printf("x: %f, y: %f, lx: %f, ly %f, a_z: %f\n", position_x_, position_y_,
-        //  x_linear_vel_, y_linear_vel_, angular_speed_);
+  //  x_linear_vel_, y_linear_vel_, angular_speed_);
 }
 double LimonROSMessenger::ConvertInnerAngleToCentral(double angle) {
   double phi = 0;

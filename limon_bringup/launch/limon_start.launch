@@ -3,6 +3,7 @@
     <!-- ttyUSB0 for IPC USB serial port -->
     <arg name="port_name" default="ttyTHS1"/>
     <arg name="odom_topic_name" default="odom" />
+    <arg name="open_rviz" default="false" />
 
     <include file="$(find limon_base)/launch/limon_base.launch">
         <arg name="port_name" default="$(arg port_name)" />
@@ -17,8 +18,17 @@
 
     <!-- mpu6050 imu -->
     <node name="limon_imu_driver" pkg="limon_imu_driver" type="limon_imu_driver" output="screen" />
+    <node pkg="tf" type="static_transform_publisher" name="base_link_to_imu" args="0.0 0.0 0.0 0.0 0.0  0.0 /base_link /imu_link 10" />
     
+    <!-- use robot pose ekf to provide odometry-->
+    <node pkg="robot_pose_ekf" name="robot_pose_ekf" type="robot_pose_ekf">
+        <param name="output_frame" value="odom" />
+        <param name="base_footprint_frame" value="base_link"/>
+    </node>
+
 
     <!-- display -->
-    <node name="rviz" pkg="rviz" type="rviz" required="true" args="-d $(find limon_bringup)/config_files/demo_2d.rviz" />
+    <group if="$(arg open_rviz)">
+        <node name="rviz" pkg="rviz" type="rviz" required="true" args="-d $(find limon_bringup)/config_files/demo_2d.rviz" />
+    </group>
 </launch>
