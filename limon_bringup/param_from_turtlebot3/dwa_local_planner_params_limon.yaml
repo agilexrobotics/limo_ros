@@ -14,9 +14,9 @@ DWAPlannerROS:
   max_vel_theta: 2.75
   min_vel_theta: 1.37
 
-  acc_lim_x: 2.5
-  acc_lim_y: 0.0
-  acc_lim_theta: 3.2 
+  acc_lim_x: 2.5             # x 方向加速度绝对值
+  acc_lim_y: 0.0             # y 方向加速度绝对值， 只有全向轮才需要
+  acc_lim_theta: 3.2         # 旋转加速度绝对值
 
 # Goal Tolerance Parametes
   xy_goal_tolerance: 0.05

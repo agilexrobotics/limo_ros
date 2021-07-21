@@ -1,0 +1,21 @@
+<launch>
+    <arg name="model" default="limon" />
+    <arg name="map_file" default="$(find limon_bringup)/maps/limon.yaml" />
+    <arg name="open_rviz" default="true" />
+    <arg name="move_forward_only" default="false" />
+
+    <!-- load map -->
+    <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)" />
+
+    <!-- AMCL -->
+    <include file="$(find limon_bringup)/launch/limon_amcl.launch" />
+
+    <!-- move_base -->
+    <include file="$(find limon_bringup)/launch/limon_move_base.launch" /> 
+
+    <!-- rviz -->
+    <group if="$(arg open_rviz)">
+        <node pkg="rviz" type="rviz" name="rviz" required="true" 
+        args="$(find limon_bringup)/config_files/limon_navigation.rviz" />
+    </group>
+</launch>

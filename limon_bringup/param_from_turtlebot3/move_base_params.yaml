@@ -1,0 +1,9 @@
+shutdown_costmaps: false     # 当move_base在不活动状态时，是否关掉costmap
+controller_frequency: 10.0   # 向底盘发送 cmd_vel 命令的频率
+planner_patience: 5.0        # 在空间清理操作执行前，留给规划器多长时间来找出一条有效规划
+controller_patience: 15.0    # 在空间清理操作执行前，控制器花多长时间等有效控制下发
+conservative_reset_dist: 3.0 # 
+planner_frequency: 5.0       # 全局规划操作的执行频率，如果设置为0.0 则全局规划器仅在接收到新目标点或者局部规划器报告路径堵塞时才会重新执行规划操作
+oscillation_timeout: 10.0    # 执行修复机制前，允许震荡的时长
+oscillation_distance: 0.2    # 来回运动在多大距离以上不会被认为是震荡
+
