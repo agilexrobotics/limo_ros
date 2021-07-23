@@ -1,4 +1,6 @@
 <launch>
+    <arg name="map_file" default="$(find limon_bringup)/maps/limon.yaml"/>
+
     <node pkg="amcl" type="amcl" name="amcl" output="screen">
         <rosparam file="$(find limon_bringup)/param/amcl_params.yaml" command="load" />
         <param name="initial_pose_x" value="0"/>
@@ -32,10 +34,13 @@
         
         <!-- global costmap with laser, for odom_navigation_demo -->
         <rosparam file="$(find limon_bringup)/param/costmap_global_laser.yaml" command="load" ns="global_costmap" if="$(arg no_static_map)"/>
-        <param name="global_costmap/width" value="20.0" if="$(arg no_static_map)"/>
-        <param name="global_costmap/height" value="20.0" if="$(arg no_static_map)"/>
+        <param name="global_costmap/width" value="2.0" if="$(arg no_static_map)"/>
+        <param name="global_costmap/height" value="2.0" if="$(arg no_static_map)"/>
         <param name='controller_frequency' value="50.0"/>
     </node>
 
+    <!-- load map -->
+    <node pkg="map_server" type="map_server" name="map_server"  args="$(arg map_file)">
+    </node>
    
 </launch>
