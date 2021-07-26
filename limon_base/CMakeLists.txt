@@ -15,6 +15,8 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   tf2
   tf2_ros
+  tf
+  rosbag
 )
 
 ## System dependencies are found with CMake's conventions
@@ -141,6 +143,7 @@ file(GLOB SOURCE_FILE_NAMES
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(limon_base_node src/limon_base_node.cpp ${SOURCE_FILE_NAMES})
+add_executable(limon_listen_path nodes/limon_listen_path.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -156,6 +159,7 @@ add_executable(limon_base_node src/limon_base_node.cpp ${SOURCE_FILE_NAMES})
 target_link_libraries(limon_base_node
   ${catkin_LIBRARIES}
 )
+target_link_libraries(limon_listen_path ${catkin_LIBRARIES})
 
 #############
 ## Install ##
