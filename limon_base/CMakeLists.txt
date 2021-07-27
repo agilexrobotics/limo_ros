@@ -144,6 +144,7 @@ file(GLOB SOURCE_FILE_NAMES
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(limon_base_node src/limon_base_node.cpp ${SOURCE_FILE_NAMES})
 add_executable(limon_listen_path nodes/limon_listen_path.cpp)
+add_executable(send_goals nodes/send_goals.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -160,6 +161,7 @@ target_link_libraries(limon_base_node
   ${catkin_LIBRARIES}
 )
 target_link_libraries(limon_listen_path ${catkin_LIBRARIES})
+target_link_libraries(send_goals ${catkin_LIBRARIES})
 
 #############
 ## Install ##

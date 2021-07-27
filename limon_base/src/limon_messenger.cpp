@@ -4,6 +4,7 @@
 #include <math.h>
 #include <tf/transform_broadcaster.h>
 #include "limon_base/limon_params.h"
+#include <sensor_msgs/Imu.h>
 
 using namespace agx;
 using namespace limon_msgs;
@@ -25,6 +26,7 @@ void LimonROSMessenger::SetupSubscription() {
       nh_->advertise<nav_msgs::Odometry>(odom_topic_name_, 50, true);
   status_publisher_ =
       nh_->advertise<limon_msgs::LimonStatus>("/limon_status", 10, true);
+  imu_publisher_ = nh_->advertise<sensor_msgs::Imu>("/imu", 10, true);
 
   motion_cmd_sub_ = nh_->subscribe<geometry_msgs::Twist>(
       "/cmd_vel", 5, &LimonROSMessenger::TwistCmdCallback, this);
@@ -136,11 +138,48 @@ void LimonROSMessenger::PublishStateToROS() {
 
   status_publisher_.publish(status_msg);
 
+  // imu data
+  GenerateImuMsg(state);
+  imu_publisher_.publish(imu_data_);
+
   // printf("l_v: %f, a_v: %f, x_v: %f, y_v: %f, dt: %f \n\n", l_v, a_v, x_v,
   // y_v, dt);
   PublishOdometryToROS(l_v, a_v, x_v, y_v, dt);
 
   last_time_ = current_time_;
+}
+
+void LimonROSMessenger::GenerateImuMsg(const LimonState &state) {
+  imu_data_.header.stamp = ros::Time::now();
+  imu_data_.header.frame_id = "imu_link";
+
+  imu_data_.linear_acceleration.x = state.imu_accel_.accel_x;
+  imu_data_.linear_acceleration.y = state.imu_accel_.accel_y;
+  imu_data_.linear_acceleration.z = state.imu_accel_.accel_z;
+
+  imu_data_.angular_velocity.x = state.imu_gyro_.gyro_x;
+  imu_data_.angular_velocity.y = state.imu_gyro_.gyro_y;
+  imu_data_.angular_velocity.z = state.imu_gyro_.gyro_z;
+
+  tf::Quaternion q;
+  q.setRPY(state.imu_euler_.roll, state.imu_euler_.pitch,
+           state.imu_euler_.yaw);
+  imu_data_.orientation.x = q.x();
+  imu_data_.orientation.y = q.y();
+  imu_data_.orientation.z = q.z();
+  imu_data_.orientation.w = q.w();
+
+  imu_data_.linear_acceleration_covariance[0] = 1.0f;
+  imu_data_.linear_acceleration_covariance[4] = 1.0f;
+  imu_data_.linear_acceleration_covariance[8] = 1.0f;
+
+  imu_data_.angular_velocity_covariance[0] = 1e-6;
+  imu_data_.angular_velocity_covariance[4] = 1e-6;
+  imu_data_.angular_velocity_covariance[8] = 1e-6;
+
+  imu_data_.orientation_covariance[0] = 1e-6;
+  imu_data_.orientation_covariance[4] = 1e-6;
+  imu_data_.orientation_covariance[8] = 1e-6;
 }
 void LimonROSMessenger::PublishOdometryToROS(double linear, double angle_vel,
                                              double x_linear_vel,

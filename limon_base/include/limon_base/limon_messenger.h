@@ -7,8 +7,10 @@
 #include <ros/console.h>
 #include <ros/master.h>
 #include <tf2_ros/transform_broadcaster.h>
+#include <sensor_msgs/Imu.h>
 #include <ugv_sdk/limon_base.h>
 #include "limon_base/limon_params.h"
+
 
 using namespace westonrobot;
 namespace agx {
@@ -25,6 +27,7 @@ class LimonROSMessenger {
 
   int sim_control_rate_ = 50;
 
+  void GenerateImuMsg(const LimonState& state);
   void SetupSubscription();
   void PublishStateToROS();
   void PublishOdometryToROS(double linear, double angle_vel,
@@ -39,9 +42,11 @@ class LimonROSMessenger {
   ros::NodeHandle *nh_;
   std::mutex twist_mutex_;
   geometry_msgs::Twist current_twist_;
+  sensor_msgs::Imu imu_data_;
 
   ros::Publisher odom_publisher_;      // robot odometry
   ros::Publisher status_publisher_;    // robot status
+  ros::Publisher imu_publisher_;       // imu data
   ros::Subscriber motion_cmd_sub_;     // get motion control
   ros::Subscriber light_cmd_sub_;      // get light control
   ros::Subscriber limon_setting_sub_;  // system setting
