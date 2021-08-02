@@ -1,7 +1,0 @@
-<launch>
-    <!-- mpu6050 imu driver, publish sensor_msgs/Imu data  -->
-    <node name="limon_imu_driver" value="limon_imu_driver" type="limon_imu_driver" output="screen" />
-
-    <!-- rviz with config file -->
-    <node name="rviz" value="rviz" type="rviz" required="true" args="$(find limon_imu_driver)/config_files/mpu6050_imu_view.rviz" />
-</launch>

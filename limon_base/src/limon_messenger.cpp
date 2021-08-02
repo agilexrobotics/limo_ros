@@ -2,12 +2,14 @@
 #include <limon_msgs/LimonSetting.h>
 #include <limon_msgs/LimonStatus.h>
 #include <math.h>
+#include <sensor_msgs/Imu.h>
 #include <tf/transform_broadcaster.h>
 #include "limon_base/limon_params.h"
-#include <sensor_msgs/Imu.h>
 
 using namespace agx;
 using namespace limon_msgs;
+
+#define DEG_TO_RAD (0.01745329)
 
 // for template use
 double FilteVelocity(float data) {
@@ -87,10 +89,6 @@ void LimonROSMessenger::PublishStateToROS() {
   status_msg.current_motion_mode = state.system_state.motion_mode;
   motion_mode_ = status_msg.current_motion_mode;
 
-  // TODO: 底层反馈的线速度，角速度和实际反了
-  state.motion_state.linear_velocity = -state.motion_state.linear_velocity;
-  state.motion_state.angular_velocity = -state.motion_state.angular_velocity;
-
   // calculate the motion state
   // linear velocity (m/s) , angular velocity (rad/s), central steering angle
   // (rad)
@@ -157,13 +155,16 @@ void LimonROSMessenger::GenerateImuMsg(const LimonState &state) {
   imu_data_.linear_acceleration.y = state.imu_accel_.accel_y;
   imu_data_.linear_acceleration.z = state.imu_accel_.accel_z;
 
-  imu_data_.angular_velocity.x = state.imu_gyro_.gyro_x;
-  imu_data_.angular_velocity.y = state.imu_gyro_.gyro_y;
-  imu_data_.angular_velocity.z = state.imu_gyro_.gyro_z;
+  imu_data_.angular_velocity.x = state.imu_gyro_.gyro_x * DEG_TO_RAD;
+  imu_data_.angular_velocity.y = state.imu_gyro_.gyro_y * DEG_TO_RAD;
+  imu_data_.angular_velocity.z = state.imu_gyro_.gyro_z * DEG_TO_RAD;
 
+  //printf("%f, %f, %f\n", state.imu_euler_.roll, state.imu_euler_.pitch,
+  //       state.imu_euler_.yaw);
   tf::Quaternion q;
-  q.setRPY(state.imu_euler_.roll, state.imu_euler_.pitch,
-           state.imu_euler_.yaw);
+  q.setRPY(state.imu_euler_.roll * DEG_TO_RAD,
+           state.imu_euler_.pitch * DEG_TO_RAD,
+           state.imu_euler_.yaw * DEG_TO_RAD);
   imu_data_.orientation.x = q.x();
   imu_data_.orientation.y = q.y();
   imu_data_.orientation.z = q.z();

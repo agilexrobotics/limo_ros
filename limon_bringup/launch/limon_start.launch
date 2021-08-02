@@ -17,7 +17,8 @@
     <!-- <include file="$(find serial_imu)/launch/hi226.launch" /> -->
 
     <!-- mpu6050 imu -->
-    <node name="limon_imu_driver" pkg="limon_imu_driver" type="limon_imu_driver" output="screen" />
+    <!-- <node name="limon_imu_driver" pkg="limon_imu_driver" type="limon_imu_driver" output="screen" /> -->
+    
     <node pkg="tf" type="static_transform_publisher" name="base_link_to_imu" args="0.0 0.0 0.0 0.0 0.0  0.0 /base_link /imu_link 10" />
     
     <!-- use robot pose ekf to provide odometry-->
