@@ -152,23 +152,26 @@ void LimonROSMessenger::GenerateImuMsg(const LimonState &state) {
   imu_data_.header.frame_id = "imu_link";
 
   imu_data_.linear_acceleration.x = state.imu_accel_.accel_x;
-  imu_data_.linear_acceleration.y = state.imu_accel_.accel_y;
-  imu_data_.linear_acceleration.z = state.imu_accel_.accel_z;
+  imu_data_.linear_acceleration.y = -state.imu_accel_.accel_y;
+  imu_data_.linear_acceleration.z = -state.imu_accel_.accel_z;
 
   imu_data_.angular_velocity.x = state.imu_gyro_.gyro_x * DEG_TO_RAD;
-  imu_data_.angular_velocity.y = state.imu_gyro_.gyro_y * DEG_TO_RAD;
-  imu_data_.angular_velocity.z = state.imu_gyro_.gyro_z * DEG_TO_RAD;
+  imu_data_.angular_velocity.y = -state.imu_gyro_.gyro_y * DEG_TO_RAD;
+  imu_data_.angular_velocity.z = -state.imu_gyro_.gyro_z * DEG_TO_RAD;
 
-  //printf("%f, %f, %f\n", state.imu_euler_.roll, state.imu_euler_.pitch,
+  // printf("%f, %f, %f\n", state.imu_euler_.roll, state.imu_euler_.pitch,
   //       state.imu_euler_.yaw);
   tf::Quaternion q;
   q.setRPY(state.imu_euler_.roll * DEG_TO_RAD,
            state.imu_euler_.pitch * DEG_TO_RAD,
            state.imu_euler_.yaw * DEG_TO_RAD);
-  imu_data_.orientation.x = q.x();
-  imu_data_.orientation.y = q.y();
-  imu_data_.orientation.z = q.z();
-  imu_data_.orientation.w = q.w();
+  tf::Quaternion q2(1,0,0,0);
+  tf::Quaternion q_trans = q2*q;
+
+  imu_data_.orientation.x = q_trans.x();
+  imu_data_.orientation.y = q_trans.y();
+  imu_data_.orientation.z = q_trans.z();
+  imu_data_.orientation.w = q_trans.w();
 
   imu_data_.linear_acceleration_covariance[0] = 1.0f;
   imu_data_.linear_acceleration_covariance[4] = 1.0f;

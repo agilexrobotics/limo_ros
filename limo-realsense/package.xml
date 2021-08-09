@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>libot-realsense</name>
+  <name>limo-realsense</name>
   <version>0.0.0</version>
   <description>The libot-realsense package</description>
 
