@@ -1,3 +1,11 @@
+/**
+ * @Kit       : Qt-Creator: Desktop
+ * @Author    : Wang Zhe
+ * @Date      : 2021-08-10  14:46:13
+ * @FileName  : send_goals.cpp
+ * @Mail      : zhe.wang@agilex.ai
+ * Copyright  : AgileX Robotics (2021)
+ **/
 
 #include <ros/ros.h>
 #include <move_base_msgs/MoveBaseAction.h>

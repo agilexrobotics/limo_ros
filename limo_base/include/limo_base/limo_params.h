@@ -1,3 +1,12 @@
+/**
+ * @Kit       : Qt-Creator: Desktop
+ * @Author    : Wang Zhe
+ * @Date      : 2021-08-10  14:45:40
+ * @FileName  : limo_params.h
+ * @Mail      : zhe.wang@agilex.ai
+ * Copyright  : AgileX Robotics (2021)
+ **/
+
 #ifndef LIMO_BASE_NODE_H
 #define LIMO_BASE_NODE_H
 namespace agx {

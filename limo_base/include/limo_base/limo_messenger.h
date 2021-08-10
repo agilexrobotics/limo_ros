@@ -1,3 +1,12 @@
+/**
+ * @Kit       : Qt-Creator: Desktop
+ * @Author    : Wang Zhe
+ * @Date      : 2021-08-10  14:45:30
+ * @FileName  : limo_messenger.h
+ * @Mail      : zhe.wang@agilex.ai
+ * Copyright  : AgileX Robotics (2021)
+ **/
+
 #ifndef LIMO_MESSENGER_H
 #define LIMO_MESSENGER_H
 
