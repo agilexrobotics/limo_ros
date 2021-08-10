@@ -1,3 +1,0 @@
-/opt/ros_ws/src/libot/libot-realsense/DataBase/a/*.png
-/opt/ros_ws/src/libot/libot-realsense/DataBase/b/*.png
-/opt/ros_ws/src/libot/libot-realsense/DataBase/c/*.png
