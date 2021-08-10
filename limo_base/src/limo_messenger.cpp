@@ -1,13 +1,13 @@
-#include "limon_base/limon_messenger.h"
-#include <limon_msgs/LimonSetting.h>
-#include <limon_msgs/LimonStatus.h>
+#include "limo_base/limo_messenger.h"
+#include <limo_msgs/LimoSetting.h>
+#include <limo_msgs/LimoStatus.h>
 #include <math.h>
 #include <sensor_msgs/Imu.h>
 #include <tf/transform_broadcaster.h>
-#include "limon_base/limon_params.h"
+#include "limo_base/limo_params.h"
 
 using namespace agx;
-using namespace limon_msgs;
+using namespace limo_msgs;
 
 #define DEG_TO_RAD (0.01745329)
 
@@ -19,53 +19,53 @@ double FilteVelocity(float data) {
   return data;
 }
 
-LimonROSMessenger::LimonROSMessenger(ros::NodeHandle *nh)
-    : limon_(nullptr), nh_(nh) {}
-LimonROSMessenger::LimonROSMessenger(LimonBase *limon, ros::NodeHandle *nh)
-    : limon_(limon), nh_(nh) {}
-void LimonROSMessenger::SetupSubscription() {
+LimoROSMessenger::LimoROSMessenger(ros::NodeHandle *nh)
+    : limo_(nullptr), nh_(nh) {}
+LimoROSMessenger::LimoROSMessenger(LimoBase *limo, ros::NodeHandle *nh)
+    : limo_(limo), nh_(nh) {}
+void LimoROSMessenger::SetupSubscription() {
   odom_publisher_ =
       nh_->advertise<nav_msgs::Odometry>(odom_topic_name_, 50, true);
   status_publisher_ =
-      nh_->advertise<limon_msgs::LimonStatus>("/limon_status", 10, true);
+      nh_->advertise<limo_msgs::LimoStatus>("/limo_status", 10, true);
   imu_publisher_ = nh_->advertise<sensor_msgs::Imu>("/imu", 10, true);
 
   motion_cmd_sub_ = nh_->subscribe<geometry_msgs::Twist>(
-      "/cmd_vel", 5, &LimonROSMessenger::TwistCmdCallback, this);
-  limon_setting_sub_ = nh_->subscribe<limon_msgs::LimonSetting>(
-      "/limon_setting", 1, &LimonROSMessenger::LimonSettingCbk, this);
+      "/cmd_vel", 5, &LimoROSMessenger::TwistCmdCallback, this);
+  limo_setting_sub_ = nh_->subscribe<limo_msgs::LimoSetting>(
+      "/limo_setting", 1, &LimoROSMessenger::LimoSettingCbk, this);
 }
 
-void LimonROSMessenger::TwistCmdCallback(
+void LimoROSMessenger::TwistCmdCallback(
     const geometry_msgs::Twist::ConstPtr &msg) {
   ROS_INFO("get cmd %lf %lf", msg->linear.x, msg->angular.z);
 
   double steer_cmd = msg->angular.z;  // steer angle, in rad
   switch (motion_mode_) {
-    case LimonSetting::MOTION_MODE_FOUR_WHEEL_DIFF: {
-      limon_->SetMotionCommand(msg->linear.x, 0, 0, msg->angular.z);
+    case LimoSetting::MOTION_MODE_FOUR_WHEEL_DIFF: {
+      limo_->SetMotionCommand(msg->linear.x, 0, 0, msg->angular.z);
     } break;
-    case LimonSetting::MOTION_MODE_ACKERMANN: {
-      if (steer_cmd > LimonParams::max_steer_angle_central) {
-        steer_cmd = LimonParams::max_steer_angle_central;
+    case LimoSetting::MOTION_MODE_ACKERMANN: {
+      if (steer_cmd > LimoParams::max_steer_angle_central) {
+        steer_cmd = LimoParams::max_steer_angle_central;
       }
-      if (steer_cmd < -LimonParams::max_steer_angle_central) {
-        steer_cmd = -LimonParams::max_steer_angle_central;
+      if (steer_cmd < -LimoParams::max_steer_angle_central) {
+        steer_cmd = -LimoParams::max_steer_angle_central;
       }
       double phi_i = ConvertCentralAngleToInner(steer_cmd);
-      limon_->SetMotionCommand(msg->linear.x, phi_i);
+      limo_->SetMotionCommand(msg->linear.x, phi_i);
     } break;
     default:
       ROS_INFO("motion mode not supported in receive cmd_vel");
       break;
   }
 }
-void LimonROSMessenger::LimonSettingCbk(
-    const limon_msgs::LimonSetting::ConstPtr &msg) {
+void LimoROSMessenger::LimoSettingCbk(
+    const limo_msgs::LimoSetting::ConstPtr &msg) {
   // set motion mode
   ROS_INFO("got setting %d", msg->motion_mode);
 }
-void LimonROSMessenger::PublishStateToROS() {
+void LimoROSMessenger::PublishStateToROS() {
   current_time_ = ros::Time::now();
   double dt = (current_time_ - last_time_).toSec();
   static bool init_run = true;
@@ -76,9 +76,9 @@ void LimonROSMessenger::PublishStateToROS() {
     return;
   }
 
-  auto state = limon_->GetLimonState();
+  auto state = limo_->GetLimoState();
 
-  limon_msgs::LimonStatus status_msg;
+  limo_msgs::LimoStatus status_msg;
 
   // system state
   status_msg.header.stamp = current_time_;
@@ -98,13 +98,13 @@ void LimonROSMessenger::PublishStateToROS() {
   double phi_i = FilteVelocity(state.motion_state.steering_angle);  // rad
 
   switch (motion_mode_) {
-    case LimonSetting::MOTION_MODE_FOUR_WHEEL_DIFF: {
+    case LimoSetting::MOTION_MODE_FOUR_WHEEL_DIFF: {
       l_v = FilteVelocity(state.motion_state.linear_velocity);
       a_v = FilteVelocity(state.motion_state.angular_velocity);
       x_v = l_v;
       y_v = 0;
     } break;
-    case LimonSetting::MOTION_MODE_ACKERMANN: {
+    case LimoSetting::MOTION_MODE_ACKERMANN: {
       l_v = FilteVelocity(state.motion_state.linear_velocity);
       double r = l / std::tan(std::fabs(phi_i)) + w / 2.0;
       phi = ConvertInnerAngleToCentral(phi_i);
@@ -147,7 +147,7 @@ void LimonROSMessenger::PublishStateToROS() {
   last_time_ = current_time_;
 }
 
-void LimonROSMessenger::GenerateImuMsg(const LimonState &state) {
+void LimoROSMessenger::GenerateImuMsg(const LimoState &state) {
   imu_data_.header.stamp = ros::Time::now();
   imu_data_.header.frame_id = "imu_link";
 
@@ -185,7 +185,7 @@ void LimonROSMessenger::GenerateImuMsg(const LimonState &state) {
   imu_data_.orientation_covariance[4] = 1e-6;
   imu_data_.orientation_covariance[8] = 1e-6;
 }
-void LimonROSMessenger::PublishOdometryToROS(double linear, double angle_vel,
+void LimoROSMessenger::PublishOdometryToROS(double linear, double angle_vel,
                                              double x_linear_vel,
                                              double y_linear_vel, double dt) {
   linear_speed_ = linear;
@@ -248,7 +248,7 @@ void LimonROSMessenger::PublishOdometryToROS(double linear, double angle_vel,
   // printf("x: %f, y: %f, lx: %f, ly %f, a_z: %f\n", position_x_, position_y_,
   //  x_linear_vel_, y_linear_vel_, angular_speed_);
 }
-double LimonROSMessenger::ConvertInnerAngleToCentral(double angle) {
+double LimoROSMessenger::ConvertInnerAngleToCentral(double angle) {
   double phi = 0;
   double phi_i = angle;
   if (phi_i > steer_angle_tolerance) {
@@ -261,7 +261,7 @@ double LimonROSMessenger::ConvertInnerAngleToCentral(double angle) {
   }
   return phi;
 }
-double LimonROSMessenger::ConvertCentralAngleToInner(double angle) {
+double LimoROSMessenger::ConvertCentralAngleToInner(double angle) {
   double phi = angle;
   double phi_i = 0.0;
   if (phi > steer_angle_tolerance) {

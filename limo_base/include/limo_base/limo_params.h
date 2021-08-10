@@ -1,7 +1,7 @@
-#ifndef LIMON_BASE_NODE_H
-#define LIMON_BASE_NODE_H
+#ifndef LIMO_BASE_NODE_H
+#define LIMO_BASE_NODE_H
 namespace agx {
-struct LimonParams {
+struct LimoParams {
   static constexpr double max_steer_angle = 22.0;  // degree
   static constexpr double track = 0.176;    // m (left right wheel distance)
   static constexpr double wheelbase = 0.2;  // m (front rear wheel distance)

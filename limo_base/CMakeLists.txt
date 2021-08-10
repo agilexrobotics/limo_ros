@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(limon_msgs)
+project(limo_base)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -8,9 +8,15 @@ project(limon_msgs)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  std_msgs
-  message_generation
-  message_runtime
+  limo_msgs
+  roscpp
+  rospy
+  ugv_sdk
+  geometry_msgs
+  tf2
+  tf2_ros
+  tf
+  rosbag
 )
 
 ## System dependencies are found with CMake's conventions
@@ -47,11 +53,11 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  LimonSetting.msg
-  LimonStatus.msg
-)
+# add_message_files(
+#   FILES
+#   Message1.msg
+#   Message2.msg
+# )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -68,10 +74,10 @@ add_message_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  std_msgs  # Or other packages containing msgs
-)
+# generate_messages(
+#   DEPENDENCIES
+#   limo_msgs
+# )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -104,8 +110,8 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES limon_msgs
-#  CATKIN_DEPENDS other_catkin_pkg
+#  LIBRARIES limo_base
+#  CATKIN_DEPENDS limo_msgs roscpp rospy ugv_sdk
 #  DEPENDS system_lib
 )
 
@@ -116,15 +122,18 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
-# ${catkin_INCLUDE_DIRS}
+  include
+  ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/limon_msgs.cpp
+#   src/${PROJECT_NAME}/limo_base.cpp
 # )
 
+file(GLOB SOURCE_FILE_NAMES
+  src/*.cpp
+)
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
@@ -133,7 +142,9 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/limon_msgs_node.cpp)
+add_executable(limo_base_node src/limo_base_node.cpp ${SOURCE_FILE_NAMES})
+add_executable(limo_listen_path nodes/limo_listen_path.cpp)
+add_executable(send_goals nodes/send_goals.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -146,9 +157,11 @@ include_directories(
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(${PROJECT_NAME}_node
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(limo_base_node
+  ${catkin_LIBRARIES}
+)
+target_link_libraries(limo_listen_path ${catkin_LIBRARIES})
+target_link_libraries(send_goals ${catkin_LIBRARIES})
 
 #############
 ## Install ##
@@ -197,7 +210,7 @@ include_directories(
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_limon_msgs.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_limo_base.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

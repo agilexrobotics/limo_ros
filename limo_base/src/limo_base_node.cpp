@@ -1,21 +1,21 @@
-#include "limon_base/limon_messenger.h"
-#include "limon_base/limon_params.h"
+#include "limo_base/limo_messenger.h"
+#include "limo_base/limo_params.h"
 
-#include <ugv_sdk/limon_base.h>
+#include <ugv_sdk/limo_base.h>
 
 using namespace agx;
 using namespace westonrobot;
 
-std::shared_ptr<LimonBase> robot;
+std::shared_ptr<LimoBase> robot;
 
 int main(int argc, char* argv[]) {
-  ros::init(argc, argv, "limon_node");
+  ros::init(argc, argv, "limo_node");
   ros::NodeHandle node(""), private_node("~");
 
-  ROS_INFO("limon_node start...");
+  ROS_INFO("limo_node start...");
 
-  robot = std::make_shared<LimonBase>();
-  LimonROSMessenger messenger(robot.get(), &node);
+  robot = std::make_shared<LimoBase>();
+  LimoROSMessenger messenger(robot.get(), &node);
 
   std::string port_name;
   private_node.param<std::string>("port_name", port_name,

@@ -1,8 +1,8 @@
 <launch>
-    <arg name="map_file" default="$(find limon_bringup)/maps/limon.yaml"/>
+    <arg name="map_file" default="$(find limo_bringup)/maps/limo.yaml"/>
 
     <node pkg="amcl" type="amcl" name="amcl" output="screen">
-        <rosparam file="$(find limon_bringup)/param/amcl_params.yaml" command="load" />
+        <rosparam file="$(find limo_bringup)/param/amcl_params.yaml" command="load" />
         <param name="initial_pose_x" value="0"/>
         <param name="initial_pose_y" value="0"/>
         <param name="initial_pose_a" value="0"/>
@@ -18,22 +18,22 @@
 
         <param name="base_global_planner" value="$(arg base_global_planner)"/>
         <param name="base_local_planner" value="$(arg base_local_planner)"/>  
-        <rosparam file="$(find limon_bringup)/param/planner.yaml" command="load"/>
+        <rosparam file="$(find limo_bringup)/param/planner.yaml" command="load"/>
 
         <!-- observation sources located in costmap_common.yaml -->
-        <rosparam file="$(find limon_bringup)/param/costmap_common.yaml" command="load" ns="global_costmap" />
-        <rosparam file="$(find limon_bringup)/param/costmap_common.yaml" command="load" ns="local_costmap" />
+        <rosparam file="$(find limo_bringup)/param/costmap_common.yaml" command="load" ns="global_costmap" />
+        <rosparam file="$(find limo_bringup)/param/costmap_common.yaml" command="load" ns="local_costmap" />
 
         <!-- local costmap, needs size -->
-        <rosparam file="$(find limon_bringup)/param/costmap_local.yaml" command="load" ns="local_costmap" />
+        <rosparam file="$(find limo_bringup)/param/costmap_local.yaml" command="load" ns="local_costmap" />
         <param name="local_costmap/width" value="2.0"/>
         <param name="local_costmap/height" value="2.0"/>
 
         <!-- static global costmap, static map provides size -->
-        <rosparam file="$(find limon_bringup)/param/costmap_global_static.yaml" command="load" ns="global_costmap" unless="$(arg no_static_map)"/>
+        <rosparam file="$(find limo_bringup)/param/costmap_global_static.yaml" command="load" ns="global_costmap" unless="$(arg no_static_map)"/>
         
         <!-- global costmap with laser, for odom_navigation_demo -->
-        <rosparam file="$(find limon_bringup)/param/costmap_global_laser.yaml" command="load" ns="global_costmap" if="$(arg no_static_map)"/>
+        <rosparam file="$(find limo_bringup)/param/costmap_global_laser.yaml" command="load" ns="global_costmap" if="$(arg no_static_map)"/>
         <param name="global_costmap/width" value="2.0" if="$(arg no_static_map)"/>
         <param name="global_costmap/height" value="2.0" if="$(arg no_static_map)"/>
         <param name='controller_frequency' value="50.0"/>

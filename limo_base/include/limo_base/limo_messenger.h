@@ -1,24 +1,24 @@
-#ifndef LIMON_MESSENGER_H
-#define LIMON_MESSENGER_H
+#ifndef LIMO_MESSENGER_H
+#define LIMO_MESSENGER_H
 
-#include <limon_msgs/LimonSetting.h>
+#include <limo_msgs/LimoSetting.h>
 #include <nav_msgs/Odometry.h>
 #include <ros/ros.h>
 #include <ros/console.h>
 #include <ros/master.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <sensor_msgs/Imu.h>
-#include <ugv_sdk/limon_base.h>
-#include "limon_base/limon_params.h"
+#include <ugv_sdk/limo_base.h>
+#include "limo_base/limo_params.h"
 
 
 using namespace westonrobot;
 namespace agx {
 
-class LimonROSMessenger {
+class LimoROSMessenger {
  public:
-  explicit LimonROSMessenger(ros::NodeHandle *nh);
-  LimonROSMessenger(LimonBase *limon, ros::NodeHandle *nh);
+  explicit LimoROSMessenger(ros::NodeHandle *nh);
+  LimoROSMessenger(LimoBase *limo, ros::NodeHandle *nh);
 
   std::string odom_frame_;
   std::string base_frame_;
@@ -27,7 +27,7 @@ class LimonROSMessenger {
 
   int sim_control_rate_ = 50;
 
-  void GenerateImuMsg(const LimonState& state);
+  void GenerateImuMsg(const LimoState& state);
   void SetupSubscription();
   void PublishStateToROS();
   void PublishOdometryToROS(double linear, double angle_vel,
@@ -38,7 +38,7 @@ class LimonROSMessenger {
   double ConvertCentralAngleToInner(double angle);
 
  private:
-  LimonBase *limon_;
+  LimoBase *limo_;
   ros::NodeHandle *nh_;
   std::mutex twist_mutex_;
   geometry_msgs::Twist current_twist_;
@@ -49,11 +49,11 @@ class LimonROSMessenger {
   ros::Publisher imu_publisher_;       // imu data
   ros::Subscriber motion_cmd_sub_;     // get motion control
   ros::Subscriber light_cmd_sub_;      // get light control
-  ros::Subscriber limon_setting_sub_;  // system setting
+  ros::Subscriber limo_setting_sub_;  // system setting
   tf2_ros::TransformBroadcaster tf_broadcaster_;
 
-  static constexpr double l = LimonParams::wheelbase;
-  static constexpr double w = LimonParams::track;
+  static constexpr double l = LimoParams::wheelbase;
+  static constexpr double w = LimoParams::track;
   static constexpr double steer_angle_tolerance = 0.002;  // +- 0.287 degrees
 
   // speed variables
@@ -70,7 +70,7 @@ class LimonROSMessenger {
   uint8_t motion_mode_;  // current motion type
 
   void TwistCmdCallback(const geometry_msgs::Twist::ConstPtr &msg);
-  void LimonSettingCbk(const limon_msgs::LimonSetting::ConstPtr &msg);
+  void LimoSettingCbk(const limo_msgs::LimoSetting::ConstPtr &msg);
 };
 }  // namespace agx
 #endif
