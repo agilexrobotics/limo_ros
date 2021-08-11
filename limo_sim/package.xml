@@ -50,6 +50,8 @@
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
 
+  <depend>urdf</depend>
+  <depend>xacro</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

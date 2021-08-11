@@ -33,7 +33,7 @@
 
     <!-- Load world -->
     <include>
-      <uri>model://turtlebot3_world</uri>
+      <uri>model://limo_world</uri>
     </include>
 
     <scene>
