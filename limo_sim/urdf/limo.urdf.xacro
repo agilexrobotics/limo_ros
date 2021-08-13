@@ -1,7 +1,6 @@
 <?xml version="1.0" ?>
-<robot name="turtlebot3_burger" xmlns:xacro="http://ros.org/wiki/xacro">
-  <xacro:include filename="$(find turtlebot3_description)/urdf/common_properties.xacro"/>
-  <xacro:include filename="$(find turtlebot3_description)/urdf/turtlebot3_burger.gazebo.xacro"/>
+<robot name="limo" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:include filename="$(find limo_sim)/urdf/limo.gazebo.xacro" />
 
   <link name="base_footprint"/>
 
@@ -15,7 +14,7 @@
     <visual>
       <origin xyz="-0.032 0 0.0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://turtlebot3_description/meshes/bases/burger_base.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://limo_sim/meshes/base_link.STL" scale="1 1 1"/>
       </geometry>
       <material name="light_black"/>
     </visual>
@@ -36,31 +35,29 @@
     </inertial>
   </link>
 
-  <joint name="wheel_left_joint" type="continuous">
-    <parent link="base_link"/>
-    <child link="wheel_left_link"/>
-    <origin xyz="0.0 0.08 0.023" rpy="-1.57 0 0"/>
-    <axis xyz="0 0 1"/>
-  </joint>
+  <join name="wheel_front_left_join" type="continuous">
+    <parent link="base_link" />
+    <child link="wheel_front_left_link" />
+    <origin xyz="0.11 0.11 0.023" rpy="-1.57 0 0" />
+    <axis xyz="0 0 1" />
+  </join>
 
-  <link name="wheel_left_link">
+  <link name="wheel_front_left_link">
     <visual>
       <origin xyz="0 0 0" rpy="1.57 0 0"/>
       <geometry>
-        <mesh filename="package://turtlebot3_description/meshes/wheels/left_tire.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://limo_sim/meshes/wheels/front_left_tire.stl" scale="1 1 1"/>
       </geometry>
-      <material name="dark"/>
+      <material name="dark" />
     </visual>
-
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <cylinder length="0.018" radius="0.033"/>
+        <cylinder length="0.018" radius="0.033" />
       </geometry>
     </collision>
-
     <inertial>
-      <origin xyz="0 0 0" />
+      <origin xyz="0 0 0"/>
       <mass value="2.8498940e-02" />
       <inertia ixx="1.1175580e-05" ixy="-4.2369783e-11" ixz="-5.9381719e-09"
                iyy="1.1192413e-05" iyz="-1.4400107e-11"
@@ -68,98 +65,81 @@
       </inertial>
   </link>
 
-  <joint name="wheel_right_joint" type="continuous">
-    <parent link="base_link"/>
-    <child link="wheel_right_link"/>
-    <origin xyz="0.0 -0.080 0.023" rpy="-1.57 0 0"/>
-    <axis xyz="0 0 1"/>
-  </joint>
+  <join name="wheel_rear_left_join" type="continuous" >
+    <parent link="base_link" />
+    <child link="wheel_rear_left_link"/>
+    <origin xyz="-0.11 0.11 0.023" rpy="-1.57 0 0" />
+    <axis xyz="0 0 1" />
+  </join>
 
-  <link name="wheel_right_link">
+  <link name="wheel_rear_left_link">
+    
+  </link>
+
+  <join name="wheel_front_right_joint" type="continuous" >
+    <parent link="base_link" />
+    <child link="wheel_front_right_link" />
+    <origin xyz="0.0 -0.08 0.023" rpy="-1.57 0 0"/>
+    <axis xyz="0 0 1"/>
+  </join>
+
+  <link name="wheel_front_right_link">
     <visual>
-      <origin xyz="0 0 0" rpy="1.57 0 0"/>
+      <origin xyz="0 0 0" rpy="1.57 0 0" />
       <geometry>
-        <mesh filename="package://turtlebot3_description/meshes/wheels/right_tire.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://limo_sim/meshes/wheels/front_right_tire.stl" scale="1 1 1"/>
       </geometry>
       <material name="dark"/>
     </visual>
-
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <cylinder length="0.018" radius="0.033"/>
+        <cylinder length="0.018" radius="0.033" />
       </geometry>
     </collision>
-
     <inertial>
       <origin xyz="0 0 0" />
       <mass value="2.8498940e-02" />
       <inertia ixx="1.1175580e-05" ixy="-4.2369783e-11" ixz="-5.9381719e-09"
                iyy="1.1192413e-05" iyz="-1.4400107e-11"
                izz="2.0712558e-05" />
-      </inertial>
-  </link>
-
-  <joint name="caster_back_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="caster_back_link"/>
-    <origin xyz="-0.081 0 -0.004" rpy="-1.57 0 0"/>
-  </joint>
-
-  <link name="caster_back_link">
-    <collision>
-      <origin xyz="0 0.001 0" rpy="0 0 0"/>
-      <geometry>
-        <box size="0.030 0.009 0.020"/>
-      </geometry>
-    </collision>
-
-    <inertial>
-      <origin xyz="0 0 0" />
-      <mass value="0.005" />
-      <inertia ixx="0.001" ixy="0.0" ixz="0.0"
-               iyy="0.001" iyz="0.0"
-               izz="0.001" />
     </inertial>
   </link>
 
   <joint name="imu_joint" type="fixed">
     <parent link="base_link"/>
     <child link="imu_link"/>
-    <origin xyz="-0.032 0 0.068" rpy="0 0 0"/>
+    <origin xyz="-0.032 0 0.068" ryp="0 0 0"/>
   </joint>
 
-  <link name="imu_link"/>
+  <link name="imu_link" />
 
   <joint name="scan_joint" type="fixed">
     <parent link="base_link"/>
-    <child link="base_scan"/>
-    <origin xyz="-0.032 0 0.172" rpy="0 0 0"/>
+    <child link="base_scan" />
+    <origin xyz="0.032 0 0.172" rpy="0 0 0"/>
   </joint>
 
   <link name="base_scan">
     <visual>
-      <origin xyz="0 0 0.0" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://turtlebot3_description/meshes/sensors/lds.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://limo_sim/meshes/sensors/lds.stl" scale="1 1 1"/>
       </geometry>
-      <material name="dark"/>
+      <material name="dark" />
     </visual>
-
     <collision>
-      <origin xyz="0.015 0 -0.0065" rpy="0 0 0"/>
+      <origin xyz="0.015 0 -0.005" rpy="0 0 0"/>
       <geometry>
         <cylinder length="0.0315" radius="0.055"/>
       </geometry>
     </collision>
-
     <inertial>
       <mass value="0.114" />
-      <origin xyz="0 0 0" />
+      <origin xyz="0 0 0"/>
       <inertia ixx="0.001" ixy="0.0" ixz="0.0"
                iyy="0.001" iyz="0.0"
                izz="0.001" />
     </inertial>
   </link>
-
 </robot>

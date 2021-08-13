@@ -190,7 +190,9 @@ include_directories(
 #   # myfile2
 #   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 # )
-install(DIRECTORY worlds models rviz urdf
+
+
+install(DIRECTORY worlds models rviz urdf meshes launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
