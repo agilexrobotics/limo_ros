@@ -50,6 +50,32 @@ class GazeboRosFourWheelDiffDrive : public ModelPlugin {
   void UpdateOdometryEncoder();
 
   GazeboRosPtr gazebo_ros_;
+  GazeboRosPtr gazebo_ros_;
+  physics::ModelPtr parent_;
+  event::ConnectionPtr update_connection_;
+
+  double wheel_separation_;
+  double wheel_diameter_;
+  double wheel_torque_;
+  double wheel_speed_[2];
+  double wheel_accel_;
+  double wheel_speed_instr_[2];
+
+  std::vector<physics::JointPtr> joints_;
+
+  ros::Publisher odometry_publisher_;
+  ros::Subscriber cmd_vel_subscriber_;
+  boost::shared_ptr<tf::TransformBroadcaster> transform_broadcaster_;
+  sensor_msgs::JointState joint_state_;
+  ros::Publisher joint_state_publisher_;
+  nav_msgs::Odometry odom_;
+  std::string tf_prefix_;
+
+  boost::mutex lock_;
+
+  std::string robot_namespace_;
+  std::string command_topic_;
+  
 };
 }  // namespace gazebo
 
