@@ -10,6 +10,15 @@ project(limo_sim)
 find_package(catkin REQUIRED COMPONENTS
     urdf
     xacro
+    gazebo_ros
+    gazebo_msgs
+    geometry_msgs
+    sensor_msgs
+    trajectory_msgs
+    visualization_msgs
+    roscpp
+    tf
+    tf2_ros
 )
 
 ## System dependencies are found with CMake's conventions
