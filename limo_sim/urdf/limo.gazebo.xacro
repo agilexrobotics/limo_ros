@@ -29,5 +29,28 @@
         <material>Gazebo/FlatBlack</material>
     </gazebo>
 
-    
+    <gazebo reference="wheel_rear_left_link">
+        <mu1>0.1</mu1>
+        <mu2>0.1</mu2>
+        <kp>500000.0</kp>
+        <kd>10.0</kd>
+        <minDepth>0.001</minDepth>
+        <maxVel>0.1</maxVel>
+        <fdir1>1 0 0</fdir1>
+        <material>Gazebo/FlatBlack</material>
+    </gazebo>
+
+    <gazebo reference="imu_link">
+        <sensor type="imu" name="imu">
+            <always_on>true</always_on>
+            <visualize>$(arg imu_visual)</visualize>
+        </sensor>
+        <material>Gazebo/FlatBlack</material>
+    </gazebo>
+
+    <gazebo>
+        <plugin name="limo_diff_controller" filename="libgazebo_ros_diff_drive.so">
+            
+        </plugin>
+    </gazebo>
 </robot>
