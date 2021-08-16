@@ -3,10 +3,10 @@
 #include <assert.h>
 #include <algorithm>
 
-#include <gazebo/common/common.hh>
 #include <gazebo/physics/physics.hh>
-#include "gazebo_ros_utils.h"
+#include <gazebo/common/common.hh>
 #include <map>
+#include "gazebo_ros_utils.h"
 
 #include <geometry_msgs/Pose2D.h>
 #include <geometry_msgs/Twist.h>
@@ -50,16 +50,15 @@ class GazeboRosFourWheelDiffDrive : public ModelPlugin {
   void UpdateOdometryEncoder();
 
   GazeboRosPtr gazebo_ros_;
-  GazeboRosPtr gazebo_ros_;
   physics::ModelPtr parent_;
   event::ConnectionPtr update_connection_;
 
   double wheel_separation_;
   double wheel_diameter_;
   double wheel_torque_;
-  double wheel_speed_[2];
+  double wheel_speed_[4];
   double wheel_accel_;
-  double wheel_speed_instr_[2];
+  double wheel_speed_instr_[4];
 
   std::vector<physics::JointPtr> joints_;
 
@@ -75,7 +74,33 @@ class GazeboRosFourWheelDiffDrive : public ModelPlugin {
 
   std::string robot_namespace_;
   std::string command_topic_;
-  
+  std::string odometry_topic_;
+  std::string odometry_frame_;
+  std::string robot_base_frame_;
+
+  bool publish_tf_;
+
+  ros::CallbackQueue queue_;
+  boost::thread callback_queue_thread_;
+  void QueueThread();
+
+  void cmdVelCallback(const geometry_msgs::Twist::ConstPtr &msg);
+
+  double x_;
+  double rot_;
+  bool alive_;
+
+  double update_rate_;
+  double update_period_;
+  common::Time last_update_time_;
+
+  OdomSource odom_source_;
+  geometry_msgs::Pose2D pose_encoder_;
+  common::Time last_odom_update_;
+
+  bool publishWheelTF_;
+  bool publishOdomTF_;
+  bool publishWheelJointState_;
 };
 }  // namespace gazebo
 

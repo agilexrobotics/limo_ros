@@ -52,6 +52,7 @@
 
   <depend>urdf</depend>
   <depend>xacro</depend>
+  <depend>gazebo_dev</depend>
   <depend>gazebo_ros</depend>
   <depend>gazebo_msgs</depend>
   <depend>geometry_msgs</depend>

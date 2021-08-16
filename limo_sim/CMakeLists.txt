@@ -10,6 +10,7 @@ project(limo_sim)
 find_package(catkin REQUIRED COMPONENTS
     urdf
     xacro
+    gazebo_dev
     gazebo_ros
     gazebo_msgs
     geometry_msgs
@@ -124,15 +125,15 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
-# ${catkin_INCLUDE_DIRS}
+  include
+  ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/limo_sim.cpp
-# )
-
+add_library(limo_ros_4_wheel_diff_drive
+  src/limo_ros_4_wheel_diff_drive.cpp
+)
+target_link_libraries(limo_ros_4_wheel_diff_drive ${catkin_LIBRARIES})
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
