@@ -68,7 +68,7 @@
             <odometrySource>world</odometrySource>
             <publishOdomTF>true</publishOdomTF>
             <robotBaseFrame>base_footprint</robotBaseFrame>
-            <publishWheelTF>false</publishWheelTF>
+            <publishWheelTF>true</publishWheelTF>
             <publishTf>true</publishTf>
             <publishWheelJointState>true</publishWheelJointState>
             <legacyMode>false</legacyMode>
@@ -81,7 +81,7 @@
             <wheelDiameter>0.066</wheelDiameter>
             <wheelAcceleration>1</wheelAcceleration>
             <wheelTorque>10</wheelTorque>
-            <rosDebugLevel>na</rosDebugLevel>
+            <rosDebugLevel>debug</rosDebugLevel>
         </plugin>
     </gazebo>
 

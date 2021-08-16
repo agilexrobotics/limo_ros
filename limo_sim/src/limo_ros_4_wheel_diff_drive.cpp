@@ -12,6 +12,8 @@
 
 #include <ros/ros.h>
 
+#include <iostream>
+
 namespace gazebo {
 enum {
   FRONT_LEFT,
@@ -20,24 +22,26 @@ enum {
   FRONT_RIGHT,
 };
 
-GazeboRosFourWheelDiffDrive::GazeboRosFourWheelDiffDrive() {}
+GazeboRosFourWheelDiffDrive::GazeboRosFourWheelDiffDrive() {
+}
 GazeboRosFourWheelDiffDrive::~GazeboRosFourWheelDiffDrive() { FiniChild(); }
 
 // load config
 void GazeboRosFourWheelDiffDrive::Load(physics::ModelPtr parent,
                                        sdf::ElementPtr sdf) {
+std::cout <<" a: 1" << std::endl;
   // clang-format off
     this->parent_ = parent;
     gazebo_ros_ = GazeboRosPtr(new GazeboRos(parent, sdf, "FourWheelDiffDrive"));
     gazebo_ros_->isInitialized();
-
+std::cout <<" a: 2" << std::endl;
     gazebo_ros_->getParameter<std::string>(command_topic_, "commandTopic", "cmd_vel");
     gazebo_ros_->getParameter<std::string>(odometry_topic_, "odometryTopic", "odom");
     gazebo_ros_->getParameter<std::string>(odometry_frame_, "odometryFrame", "odom");
     gazebo_ros_->getParameter<std::string>(robot_base_frame_, "robotBaseFrame", "base_footprint");
     gazebo_ros_->getParameterBoolean(publishWheelTF_, "publishWheelTF", false);
     gazebo_ros_->getParameterBoolean(publishOdomTF_, "publishOdomTF", true);
-    gazebo_ros_->getParameterBoolean(publishWheelJointState_, "publishWheelJointState", false);
+    gazebo_ros_->getParameterBoolean(publishWheelJointState_, "publishWheelJointState", true);
     gazebo_ros_->getParameter<double>(wheel_separation_, "wheelSeparation", 0.34);
     gazebo_ros_->getParameter<double>(wheel_diameter_, "wheelDiameter", 0.15);
     gazebo_ros_->getParameter<double>(wheel_accel_, "wheelAcceleration", 0.0);
@@ -47,25 +51,26 @@ void GazeboRosFourWheelDiffDrive::Load(physics::ModelPtr parent,
     odomOptions["encoder"] = ENCODER;
     odomOptions["world"] = WORLD;
     gazebo_ros_->getParameter<OdomSource>(odom_source_, "odometrySource", odomOptions, WORLD);
-
+std::cout <<" a: 3" << std::endl;
     joints_.resize(4);
-    joints_[FRONT_LEFT] = gazebo_ros_->getJoint(parent, "frontLeftJoint", "front_left_joint");
-    joints_[REAR_LEFT] = gazebo_ros_->getJoint(parent, "rearLeftJoint", "rear_left_joint");
-    joints_[REAR_RIGHT] = gazebo_ros_->getJoint(parent, "rearRightJoint", "rear_right_joint");
-    joints_[FRONT_RIGHT] = gazebo_ros_->getJoint(parent, "frontRightJoint", "front_right_joint");
+    joints_[FRONT_LEFT] = gazebo_ros_->getJoint(parent, "frontLeftJoint", "wheel_front_left_joint");
+    joints_[REAR_LEFT] = gazebo_ros_->getJoint(parent, "rearLeftJoint", "wheel_rear_left_joint");
+    joints_[REAR_RIGHT] = gazebo_ros_->getJoint(parent, "rearRightJoint", "wheel_rear_right_joint");
+    joints_[FRONT_RIGHT] = gazebo_ros_->getJoint(parent, "frontRightJoint", "wheel_front_right_joint");
     joints_[FRONT_LEFT]->SetParam("fmax",0,wheel_torque_);
     joints_[REAR_LEFT]->SetParam("fmax",0,wheel_torque_);
     joints_[REAR_RIGHT]->SetParam("fmax",0,wheel_torque_);
     joints_[FRONT_RIGHT]->SetParam("fmax",0,wheel_torque_);
-
+std::cout <<" a: 4" << std::endl;
+    ROS_INFO_NAMED("FourWheelDiffDrive", "params publishWheelTF_: %d, publishOdomTF_: %d", publishWheelTF_, publishOdomTF_);
     this->publish_tf_ = true;
     if (!sdf->HasElement("publishTf")) {
-    ROS_WARN_NAMED("diff_drive", "GazeboRosDiffDrive Plugin (ns = %s) missing <publishTf>, defaults to %d",
+    ROS_INFO_NAMED("FourWheelDiffDrive", "GazeboRosDiffDrive Plugin (ns = %s) missing <publishTf>, defaults to %d",
         this->robot_namespace_.c_str(), this->publish_tf_);
     } else {
     this->publish_tf_ = sdf->GetElement("publishTf")->Get<bool>();
     }
-
+std::cout <<" a: 4" << std::endl;
         // Initialize update rate stuff
     if ( this->update_rate_ > 0.0 ) this->update_period_ = 1.0 / this->update_rate_;
     else this->update_period_ = 0.0;
@@ -74,7 +79,7 @@ void GazeboRosFourWheelDiffDrive::Load(physics::ModelPtr parent,
     #else
         last_update_time_ = parent_->GetWorld()->GetSimTime();
     #endif
-
+std::cout <<" a: 5" << std::endl;
     // Initialize velocity stuff
     wheel_speed_[FRONT_LEFT] = 0;
     wheel_speed_[REAR_LEFT] = 0;
@@ -86,25 +91,28 @@ void GazeboRosFourWheelDiffDrive::Load(physics::ModelPtr parent,
     wheel_speed_instr_[REAR_LEFT] = 0;
     wheel_speed_instr_[REAR_RIGHT] = 0;
     wheel_speed_instr_[FRONT_RIGHT] = 0;
-
+std::cout <<" a: 6" << std::endl;
     x_ = 0;
     rot_ = 0;
     alive_ = true;
 
     if(this->publishWheelJointState_){
         joint_state_publisher_ = gazebo_ros_->node()->advertise<sensor_msgs::JointState>("joint_states", 1000);
+        ROS_INFO_NAMED("FourWheelDiffDrive", "publish wheel joint");
     }
-
+std::cout <<" a: 7" << std::endl;
     transform_broadcaster_ = boost::shared_ptr<tf::TransformBroadcaster>(new tf::TransformBroadcaster());
 
     ros::SubscribeOptions so = ros::SubscribeOptions::create<geometry_msgs::Twist>(command_topic_,
         1, boost::bind(&GazeboRosFourWheelDiffDrive::cmdVelCallback, this, _1), ros::VoidPtr(), &queue_);
     cmd_vel_subscriber_ = gazebo_ros_->node()->subscribe(so);
-
+    ROS_INFO_NAMED("FourWheelDiffDrive", "subscribe to: %s", command_topic_.c_str());
+std::cout <<" a: 8" << std::endl;
     if(this->publish_tf_){
         odometry_publisher_ = gazebo_ros_->node()->advertise<nav_msgs::Odometry>(odometry_topic_,1);
+        ROS_INFO_NAMED("FourWheelDiffDrive","publish odom ");
     }
-
+std::cout <<" a: 9" << std::endl;
     this->callback_queue_thread_ = boost::thread(boost::bind(&GazeboRosFourWheelDiffDrive::QueueThread, this));
     this->update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&GazeboRosFourWheelDiffDrive::UpdateChild, this));
   // clang-format on
@@ -171,7 +179,10 @@ void GazeboRosFourWheelDiffDrive::UpdateChild() {
       (current_time - last_update_time_).Double();
 
   if (seconds_since_last_update > update_period_) {
-    if (this->publish_tf_) publishOdometry(seconds_since_last_update);
+    if (this->publish_tf_){ 
+        publishOdometry(seconds_since_last_update);
+
+    }
     if (publishWheelTF_) publishWheelTF();
     if (publishWheelJointState_) publishWheelJointState();
 
