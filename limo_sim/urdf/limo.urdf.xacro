@@ -14,7 +14,7 @@
     <visual>
       <origin xyz="-0.032 0 0.0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://limo_sim/meshes/base_link.STL" scale="1 1 1"/>
+        <mesh filename="package://limo_sim/meshes/base_link.stl" scale="1 1 1"/>
       </geometry>
       <material name="light_black"/>
     </visual>
@@ -35,20 +35,20 @@
     </inertial>
   </link>
 
-  <join name="wheel_front_left_join" type="continuous">
+  <joint name="wheel_front_left_joint" type="continuous">
     <parent link="base_link" />
     <child link="wheel_front_left_link" />
-    <origin xyz="0.11 0.11 0.023" rpy="-1.57 0 0" />
+    <origin xyz="0 0 0.023" rpy="-1.57 0 0" />
     <axis xyz="0 0 1" />
-  </join>
+  </joint>
 
   <link name="wheel_front_left_link">
     <visual>
       <origin xyz="0 0 0" rpy="1.57 0 0"/>
       <geometry>
-        <mesh filename="package://limo_sim/meshes/wheels/front_left_tire.stl" scale="1 1 1"/>
+        <mesh filename="package://limo_sim/meshes/wheels/front_left_tire.stl" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="dark" />
+      <material name="red" />
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -64,21 +64,21 @@
                izz="2.0712558e-05" />
       </inertial>
   </link>
-
-  <join name="wheel_rear_left_join" type="continuous" >
+ 
+  <joint name="wheel_rear_left_join" type="continuous" >
     <parent link="base_link" />
     <child link="wheel_rear_left_link"/>
-    <origin xyz="-0.11 0.11 0.023" rpy="-1.57 0 0" />
+    <origin xyz="0 0 0.123" rpy="-1.57 0 0" />
     <axis xyz="0 0 1" />
-  </join>
+  </joint>
 
   <link name="wheel_rear_left_link">
     <visual>
       <origin xyz="0 0 0" rpy="1.57 0 0"/>
       <geometry>
-        <mesh filename="package://limo_sim/meshes/rear_left_tire.stl" scale="1 1 1"/>
+        <mesh filename="package://limo_sim/meshes/wheels/rear_left_tire.stl" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="dark"/>
+      <material name="green"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -95,20 +95,20 @@
     </inertial>
   </link>
 
-  <join name="wheel_rear_right_joint" type="continuous">
+  <joint name="wheel_rear_right_joint" type="continuous">
     <parent link="base_link" />
     <child link="wheel_rear_right_link"/>
-    <origin xyz="0.0 -0.08 0.023" rpy="-1.57 0 0" />
+    <origin xyz="0 0 0.223" rpy="-1.57 0 0" />
     <axis xyz="0 0 1" />
-  </join>
+  </joint>
 
   <link name="wheel_rear_right_link">
     <visual>
       <origin xyz="0 0 0" rpy="1.57 0 0" />
       <geometry>
-        <mesh filename="package://limo_sim/meshes/rear_right_tire.stl" scale="1 1 1"/>
+        <mesh filename="package://limo_sim/meshes/wheels/rear_right_tire.stl" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="dark"/>
+      <material name="blue"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -125,18 +125,18 @@
     </inertial>
   </link>
 
-  <join name="wheel_front_right_joint" type="continuous" >
+  <joint name="wheel_front_right_joint" type="continuous" >
     <parent link="base_link" />
     <child link="wheel_front_right_link" />
-    <origin xyz="0.0 -0.08 0.023" rpy="-1.57 0 0"/>
+    <origin xyz="0.0 0 0.323" rpy="-1.57 0 0"/>
     <axis xyz="0 0 1"/>
-  </join>
+  </joint>
 
   <link name="wheel_front_right_link">
     <visual>
       <origin xyz="0 0 0" rpy="1.57 0 0" />
       <geometry>
-        <mesh filename="package://limo_sim/meshes/wheels/front_right_tire.stl" scale="1 1 1"/>
+        <mesh filename="package://limo_sim/meshes/wheels/front_right_tire.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="dark"/>
     </visual>
@@ -173,7 +173,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://limo_sim/meshes/sensors/lds.stl" scale="1 1 1"/>
+        <mesh filename="package://limo_sim/meshes/sensors/lds.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="dark" />
     </visual>
@@ -191,4 +191,5 @@
                izz="0.001" />
     </inertial>
   </link>
+
 </robot>
