@@ -220,4 +220,113 @@ void GazeboRosFourWheelDiffDrive::UpdateChild() {
   IGN_PROFILE_END();
 #endif
 }
+
+void GazeboRosFourWheelDiffDrive::FiniChild() {
+  alive_ = false;
+  queue_.clear();
+  queue_.disable();
+  gazebo_ros_->node()->shutdown();
+  callback_queue_thread_.join();
+}
+
+void GazeboRosFourWheelDiffDrive::getWheelVelocities() {
+  boost::mutex::scoped_lock scoped_lock(lock_);
+
+  double vr = x_;
+  double va = rot_;
+
+  wheel_speed_[FRONT_LEFT] = vr - va * wheel_separation_ / 2.0;
+  wheel_speed_[REAR_LEFT] = wheel_speed_[FRONT_LEFT];
+  wheel_speed_[FRONT_RIGHT] = vr + va * wheel_separation_ / 2.0;
+  wheel_speed_[REAR_RIGHT] = wheel_speed_[FRONT_RIGHT];
+}
+
+void GazeboRosFourWheelDiffDrive::cmdVelCallback(
+    const geometry_msgs::Twist::ConstPtr& msg) {
+  boost::mutex::scoped_lock scoped_lock(lock_);
+  x_ = msg->linear.x;
+  rot_ = msg->angular.z;
+}
+void GazeboRosFourWheelDiffDrive::QueueThread() {
+  static const double timeout = 0.01;
+  while (alive_ and gazebo_ros_->node()->ok()) {
+    queue_.callAvailable(ros::WallDuration(timeout));
+  }
+}
+void GazeboRosFourWheelDiffDrive::UpdateOdometryEncoder() {}
+void GazeboRosFourWheelDiffDrive::publishOdometry(double step_time) {
+  // clang-format off
+  ros::Time current_time = ros::Time::now();
+  std::string odom_frame = gazebo_ros_->resolveTF(odometry_frame_);
+  std::string base_footprint_frame = gazebo_ros_->resolveTF(robot_base_frame_);
+
+  tf::Quaternion qt;
+  tf::Vector3 vt;
+
+  if(odom_source_ == ENCODER){
+      qt = tf::Quaternion(odom_.pose.pose.orientation.x, odom_.pose.pose.orientation.y,odom_.pose.pose.orientation.z, odom_.pose.pose.orientation.w);
+      vt = tf::Vector3(odom_.pose.pose.position.x, odom_.pose.pose.position.y, odom_.pose.pose.position.z);
+  }
+
+  if (odom_source_ == WORLD) {
+    // getting data from gazebo world
+#if GAZEBO_MAJOR_VERSION >= 8
+    ignition::math::Pose3d pose = parent_->WorldPose();
+#else
+    ignition::math::Pose3d pose = parent_->GetWorldPose().Ign();
+#endif
+    qt = tf::Quaternion(pose.Rot().X(), pose.Rot().Y(), pose.Rot().Z(), pose.Rot().W());
+    vt = tf::Vector3(pose.Pos().X(), pose.Pos().Y(), pose.Pos().Z());
+    // clang-format on
+
+    odom_.pose.pose.position.x = vt.x();
+    odom_.pose.pose.position.y = vt.y();
+    odom_.pose.pose.position.z = vt.z();
+
+    odom_.pose.pose.orientation.x = qt.x();
+    odom_.pose.pose.orientation.y = qt.y();
+    odom_.pose.pose.orientation.z = qt.z();
+    odom_.pose.pose.orientation.w = qt.w();
+
+    // get velocity in /odom frame
+    ignition::math::Vector3d linear;
+#if GAZEBO_MAJOR_VERSION >= 8
+    linear = parent_->WorldLinearVel();
+    odom_.twist.twist.angular.z = parent_->WorldAngularVel().Z();
+#else
+    linear = parent_->GetWorldLinearVel().Ign();
+    odom_.twist.twist.angular.z = parent_->GetWorldAngularVel().Ign().Z();
+#endif
+
+    // convert velocity to child_frame_id (aka base_footprint)
+    float yaw = pose.Rot().Yaw();
+    odom_.twist.twist.linear.x =
+        cosf(yaw) * linear.X() + sinf(yaw) * linear.Y();
+    odom_.twist.twist.linear.y =
+        cosf(yaw) * linear.Y() - sinf(yaw) * linear.X();
+  }
+
+  if (publishOdomTF_ == true) {
+    tf::Transform base_footprint_to_odom(qt, vt);
+    transform_broadcaster_->sendTransform(
+        tf::StampedTransform(base_footprint_to_odom, current_time, odom_frame,
+                             base_footprint_frame));
+  }
+
+  // set covariance
+  odom_.pose.covariance[0] = 0.00001;
+  odom_.pose.covariance[7] = 0.00001;
+  odom_.pose.covariance[14] = 1000000000000.0;
+  odom_.pose.covariance[21] = 1000000000000.0;
+  odom_.pose.covariance[28] = 1000000000000.0;
+  odom_.pose.covariance[35] = 0.001;
+
+  // set header
+  odom_.header.stamp = current_time;
+  odom_.header.frame_id = odom_frame;
+  odom_.child_frame_id = base_footprint_frame;
+
+  odometry_publisher_.publish(odom_);
+}
+GZ_REGISTER_MODEL_PLUGIN(GazeboRosFourWheelDiffDrive)
 }  // namespace gazebo
