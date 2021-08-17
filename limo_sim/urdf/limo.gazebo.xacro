@@ -48,7 +48,7 @@
         <minDepth>0.001</minDepth>
         <maxVel>0.1</maxVel>
         <fdir1>1 0 0</fdir1>
-        <material>Gazebo/FlatBlack</material>
+        <material>Gazebo/Yellow</material>
     </gazebo>
 
 
@@ -74,9 +74,9 @@
             <legacyMode>false</legacyMode>
             <updateRate>30</updateRate>
             <frontLeftJoint>wheel_front_left_joint</frontLeftJoint>
-            <frontRightJoint>wheel_front_right_joint</frontRightJoint>
             <rearLeftJoint>wheel_rear_left_joint</rearLeftJoint>
             <rearRightJoint>wheel_rear_right_joint</rearRightJoint>
+            <frontRightJoint>wheel_front_right_joint</frontRightJoint>
             <wheelSeparation>0.160</wheelSeparation>
             <wheelDiameter>0.066</wheelDiameter>
             <wheelAcceleration>1</wheelAcceleration>
@@ -145,6 +145,6 @@
             <frameName>base_scan</frameName>
           </plugin>
         </sensor>
-      </gazebo>
+    </gazebo>
     
 </robot>

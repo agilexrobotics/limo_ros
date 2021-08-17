@@ -29,12 +29,12 @@ GazeboRosFourWheelDiffDrive::~GazeboRosFourWheelDiffDrive() { FiniChild(); }
 // load config
 void GazeboRosFourWheelDiffDrive::Load(physics::ModelPtr parent,
                                        sdf::ElementPtr sdf) {
-std::cout <<" a: 1" << std::endl;
+
   // clang-format off
     this->parent_ = parent;
     gazebo_ros_ = GazeboRosPtr(new GazeboRos(parent, sdf, "FourWheelDiffDrive"));
     gazebo_ros_->isInitialized();
-std::cout <<" a: 2" << std::endl;
+
     gazebo_ros_->getParameter<std::string>(command_topic_, "commandTopic", "cmd_vel");
     gazebo_ros_->getParameter<std::string>(odometry_topic_, "odometryTopic", "odom");
     gazebo_ros_->getParameter<std::string>(odometry_frame_, "odometryFrame", "odom");
@@ -51,17 +51,8 @@ std::cout <<" a: 2" << std::endl;
     odomOptions["encoder"] = ENCODER;
     odomOptions["world"] = WORLD;
     gazebo_ros_->getParameter<OdomSource>(odom_source_, "odometrySource", odomOptions, WORLD);
-std::cout <<" a: 3" << std::endl;
-    joints_.resize(4);
-    joints_[FRONT_LEFT] = gazebo_ros_->getJoint(parent, "frontLeftJoint", "wheel_front_left_joint");
-    joints_[REAR_LEFT] = gazebo_ros_->getJoint(parent, "rearLeftJoint", "wheel_rear_left_joint");
-    joints_[REAR_RIGHT] = gazebo_ros_->getJoint(parent, "rearRightJoint", "wheel_rear_right_joint");
-    joints_[FRONT_RIGHT] = gazebo_ros_->getJoint(parent, "frontRightJoint", "wheel_front_right_joint");
-    joints_[FRONT_LEFT]->SetParam("fmax",0,wheel_torque_);
-    joints_[REAR_LEFT]->SetParam("fmax",0,wheel_torque_);
-    joints_[REAR_RIGHT]->SetParam("fmax",0,wheel_torque_);
-    joints_[FRONT_RIGHT]->SetParam("fmax",0,wheel_torque_);
-std::cout <<" a: 4" << std::endl;
+
+
     ROS_INFO_NAMED("FourWheelDiffDrive", "params publishWheelTF_: %d, publishOdomTF_: %d", publishWheelTF_, publishOdomTF_);
     this->publish_tf_ = true;
     if (!sdf->HasElement("publishTf")) {
@@ -70,7 +61,7 @@ std::cout <<" a: 4" << std::endl;
     } else {
     this->publish_tf_ = sdf->GetElement("publishTf")->Get<bool>();
     }
-std::cout <<" a: 4" << std::endl;
+
         // Initialize update rate stuff
     if ( this->update_rate_ > 0.0 ) this->update_period_ = 1.0 / this->update_rate_;
     else this->update_period_ = 0.0;
@@ -79,7 +70,7 @@ std::cout <<" a: 4" << std::endl;
     #else
         last_update_time_ = parent_->GetWorld()->GetSimTime();
     #endif
-std::cout <<" a: 5" << std::endl;
+
     // Initialize velocity stuff
     wheel_speed_[FRONT_LEFT] = 0;
     wheel_speed_[REAR_LEFT] = 0;
@@ -91,7 +82,7 @@ std::cout <<" a: 5" << std::endl;
     wheel_speed_instr_[REAR_LEFT] = 0;
     wheel_speed_instr_[REAR_RIGHT] = 0;
     wheel_speed_instr_[FRONT_RIGHT] = 0;
-std::cout <<" a: 6" << std::endl;
+
     x_ = 0;
     rot_ = 0;
     alive_ = true;
@@ -100,21 +91,32 @@ std::cout <<" a: 6" << std::endl;
         joint_state_publisher_ = gazebo_ros_->node()->advertise<sensor_msgs::JointState>("joint_states", 1000);
         ROS_INFO_NAMED("FourWheelDiffDrive", "publish wheel joint");
     }
-std::cout <<" a: 7" << std::endl;
+
     transform_broadcaster_ = boost::shared_ptr<tf::TransformBroadcaster>(new tf::TransformBroadcaster());
 
     ros::SubscribeOptions so = ros::SubscribeOptions::create<geometry_msgs::Twist>(command_topic_,
         1, boost::bind(&GazeboRosFourWheelDiffDrive::cmdVelCallback, this, _1), ros::VoidPtr(), &queue_);
     cmd_vel_subscriber_ = gazebo_ros_->node()->subscribe(so);
     ROS_INFO_NAMED("FourWheelDiffDrive", "subscribe to: %s", command_topic_.c_str());
-std::cout <<" a: 8" << std::endl;
+
     if(this->publish_tf_){
         odometry_publisher_ = gazebo_ros_->node()->advertise<nav_msgs::Odometry>(odometry_topic_,1);
         ROS_INFO_NAMED("FourWheelDiffDrive","publish odom ");
     }
-std::cout <<" a: 9" << std::endl;
+
     this->callback_queue_thread_ = boost::thread(boost::bind(&GazeboRosFourWheelDiffDrive::QueueThread, this));
     this->update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&GazeboRosFourWheelDiffDrive::UpdateChild, this));
+
+    joints_.resize(4);
+    joints_[FRONT_LEFT] = gazebo_ros_->getJoint(parent, "frontLeftJoint", "wheel_front_left_joint");
+    joints_[REAR_LEFT] = gazebo_ros_->getJoint(parent, "rearLeftJoint", "wheel_rear_left_joint");
+    joints_[REAR_RIGHT] = gazebo_ros_->getJoint(parent, "rearRightJoint", "wheel_rear_right_joint");
+    joints_[FRONT_RIGHT] = gazebo_ros_->getJoint(parent, "frontRightJoint", "wheel_front_right_joint");
+    joints_[FRONT_LEFT]->SetParam("fmax",0,wheel_torque_);
+    joints_[REAR_LEFT]->SetParam("fmax",0,wheel_torque_);
+    joints_[REAR_RIGHT]->SetParam("fmax",0,wheel_torque_);
+    joints_[FRONT_RIGHT]->SetParam("fmax",0,wheel_torque_);
+  
   // clang-format on
 }
 
@@ -219,13 +221,20 @@ void GazeboRosFourWheelDiffDrive::UpdateChild() {
             wheel_speed_instr_[FRONT_RIGHT]+=fmax ( wheel_speed_[FRONT_RIGHT]-current_speed[FRONT_RIGHT], -wheel_accel_ * seconds_since_last_update );
             wheel_speed_instr_[REAR_RIGHT] = wheel_speed_[FRONT_RIGHT];
         }
-        joints_[FRONT_LEFT]->SetParam ( "vel", 0, wheel_speed_instr_[FRONT_LEFT] / ( wheel_diameter_ / 2.0 ) );
-        joints_[REAR_LEFT]->SetParam ( "vel", 0, wheel_speed_instr_[REAR_LEFT] / ( wheel_diameter_ / 2.0 ) );
-        joints_[REAR_RIGHT]->SetParam ( "vel", 0, wheel_speed_instr_[REAR_RIGHT] / ( wheel_diameter_ / 2.0 ) );
-        joints_[FRONT_RIGHT]->SetParam ( "vel", 0, wheel_speed_instr_[FRONT_RIGHT] / ( wheel_diameter_ / 2.0 ) );
+        // joints_[FRONT_LEFT]->SetParam ( "vel", 0, wheel_speed_instr_[FRONT_LEFT] / ( wheel_diameter_ / 2.0 ) );
+        // joints_[REAR_LEFT]->SetParam ( "vel", 0, wheel_speed_instr_[REAR_LEFT] / ( wheel_diameter_ / 2.0 ) );
+        // joints_[REAR_RIGHT]->SetParam ( "vel", 0, wheel_speed_instr_[REAR_RIGHT] / ( wheel_diameter_ / 2.0 ) );
+        // joints_[FRONT_RIGHT]->SetParam ( "vel", 0, wheel_speed_instr_[FRONT_RIGHT] / ( wheel_diameter_ / 2.0 ) );
+        joints_[FRONT_LEFT]->SetParam ( "vel", 0,1);
+        joints_[REAR_LEFT]->SetParam ( "vel", 0,1);
+        joints_[REAR_RIGHT]->SetParam ( "vel", 0,1);
+        joints_[FRONT_RIGHT]->SetParam ( "vel", 0,1);
+        std::cout <<"set vel..." << std::endl;
     }
     last_update_time_+= common::Time ( update_period_ );
     // clang-format on
+
+    std::cout << "update..." << std::endl;
   }
 #ifdef ENABLE_PROFILER
   IGN_PROFILE_END();
