@@ -7,7 +7,7 @@
   <joint name="base_joint" type="fixed">
     <parent link="base_footprint"/>
     <child link="base_link"/>
-    <origin xyz="0.0 0.0 0.012" rpy="0 0 0"/>
+    <origin xyz="0.0 0.0 0.008" rpy="0 0 0"/>
   </joint>
 
   <link name="base_link">
@@ -38,12 +38,13 @@
   <joint name="wheel_front_left_joint" type="continuous">
     <parent link="base_link" />
     <child link="wheel_front_left_link" />
-    <origin xyz="0.1 0.08 0.03" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
+    <origin xyz="0.08 0.08 0.023" rpy="-1.57 0 0" />
+    <axis xyz="0 0 1" />
   </joint>
 
   <link name="wheel_front_left_link">
     <visual>
+      <origin xyz="0 0 0" rpy="1.57 0 0" />
       <geometry>
         <mesh filename="package://limo_sim/meshes/wheels/front_left_tire.stl" scale="0.001 0.001 0.001"/>
       </geometry>
@@ -57,22 +58,23 @@
     </collision>
     <inertial>
       <origin xyz="0 0 0"/>
-      <mass value="2.8498940e-02" />
-      <inertia ixx="1.1175580e-05" ixy="-4.2369783e-11" ixz="-5.9381719e-09"
-               iyy="1.1192413e-05" iyz="-1.4400107e-11"
-               izz="2.0712558e-05" />
+      <mass value="10" />
+      <inertia ixx="1.1175580e-02" ixy="-4.2369783e-11" ixz="-5.9381719e-09"
+               iyy="1.1192413e-02" iyz="-1.4400107e-11"
+               izz="2.0712558e-02" />
       </inertial>
   </link>
  
   <joint name="wheel_rear_left_joint" type="continuous" >
     <parent link="base_link" />
     <child link="wheel_rear_left_link"/>
-    <origin xyz="-0.1 0.08 0.03" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
+    <origin xyz="-0.08 0.08 0.023" rpy="-1.57 0 0" />
+    <axis xyz="0 0 1" />
   </joint>
 
   <link name="wheel_rear_left_link">
     <visual>
+      <origin xyz="0 0 0" rpy="1.57 0 0" />
       <geometry>
         <mesh filename="package://limo_sim/meshes/wheels/rear_left_tire.stl" scale="0.001 0.001 0.001"/>
       </geometry>
@@ -86,22 +88,23 @@
     </collision>
     <inertial>
       <origin xyz="0 0 0"/>
-      <mass value="2.8498940e-02" />
-      <inertia ixx="1.1175580e-05" ixy="-4.2369783e-11" ixz="-5.9381719e-09"
-               iyy="1.1192413e-05" iyz="-1.4400107e-11"
-               izz="2.0712558e-05" />
+      <mass value="10" />
+      <inertia ixx="1.1175580e-02" ixy="-4.2369783e-11" ixz="-5.9381719e-09"
+               iyy="1.1192413e-02" iyz="-1.4400107e-11"
+               izz="2.0712558e-02" />
     </inertial>
   </link>
 
   <joint name="wheel_rear_right_joint" type="continuous">
     <parent link="base_link" />
     <child link="wheel_rear_right_link"/>
-    <origin xyz="-0.1 -0.08 0.03" rpy="0 0 0" />
-    <axis xyz="0 1 0" />
+    <origin xyz="-0.08 -0.08 0.023" rpy="-1.57 0 0" />
+    <axis xyz="0 0 1" />
   </joint>
 
   <link name="wheel_rear_right_link">
     <visual>
+      <origin xyz="0 0 0" rpy="1.57 0 0" />
       <geometry>
         <mesh filename="package://limo_sim/meshes/wheels/rear_right_tire.stl" scale="0.001 0.001 0.001"/>
       </geometry>
@@ -115,22 +118,23 @@
     </collision>
     <inertial>
       <origin xyz="0 0 0"/>
-      <mass value="2.8498940e-02" />
-      <inertia ixx="1.1175580e-05" ixy="-4.2369783e-11" ixz="-5.9381719e-09"
-               iyy="1.1192413e-05" iyz="-1.4400107e-11"
-               izz="2.0712558e-05" />
+      <mass value="10" />
+      <inertia ixx="1.1175580e-02" ixy="-4.2369783e-11" ixz="-5.9381719e-09"
+               iyy="1.1192413e-02" iyz="-1.4400107e-11"
+               izz="2.0712558e-02" />
     </inertial>
   </link>
 
   <joint name="wheel_front_right_joint" type="continuous" >
     <parent link="base_link" />
     <child link="wheel_front_right_link" />
-    <origin xyz="0.1 -0.08 0.03" rpy="0 0 0"/>
-    <axis xyz="0 1 0"/>
+    <origin xyz="0.08 -0.08 0.023" rpy="-1.57 0 0"/>
+    <axis xyz="0 0 1"/>
   </joint>
 
   <link name="wheel_front_right_link">
     <visual>
+      <origin xyz="0 0 0" rpy="1.57 0 0" />
       <geometry>
         <mesh filename="package://limo_sim/meshes/wheels/front_right_tire.stl" scale="0.001 0.001 0.001"/>
       </geometry>
@@ -144,10 +148,10 @@
     </collision>
     <inertial>
       <origin xyz="0 0 0" />
-      <mass value="2.8498940e-02" />
-      <inertia ixx="1.1175580e-05" ixy="-4.2369783e-11" ixz="-5.9381719e-09"
-               iyy="1.1192413e-05" iyz="-1.4400107e-11"
-               izz="2.0712558e-05" />
+      <mass value="10" />
+      <inertia ixx="1.1175580e-02" ixy="-4.2369783e-11" ixz="-5.9381719e-09"
+               iyy="1.1192413e-02" iyz="-1.4400107e-11"
+               izz="2.0712558e-02" />
     </inertial>
   </link>
 

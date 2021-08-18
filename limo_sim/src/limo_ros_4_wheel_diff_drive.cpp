@@ -204,8 +204,6 @@ void GazeboRosFourWheelDiffDrive::UpdateChild() {
         joints_[REAR_RIGHT]->SetParam ( "vel", 0, wheel_speed_[REAR_RIGHT]/ ( wheel_diameter_ / 2.0 ) );
         joints_[FRONT_RIGHT]->SetParam ( "vel", 0, wheel_speed_[FRONT_RIGHT]/ ( wheel_diameter_ / 2.0 ) );
 
-        std::cout << "set vel 1 ..." << std::endl;
-        std::cout << wheel_speed_[FRONT_LEFT]/ ( wheel_diameter_ / 2.0 ) << std::endl;
     } else {
         if ( wheel_speed_[FRONT_LEFT]>=current_speed[FRONT_LEFT] ){
             wheel_speed_instr_[FRONT_LEFT]+=fmin ( wheel_speed_[FRONT_LEFT]-current_speed[FRONT_LEFT],  wheel_accel_ * seconds_since_last_update );
@@ -225,12 +223,9 @@ void GazeboRosFourWheelDiffDrive::UpdateChild() {
         joints_[REAR_LEFT]->SetParam ( "vel", 0, wheel_speed_instr_[REAR_LEFT] / ( wheel_diameter_ / 2.0 ) );
         joints_[REAR_RIGHT]->SetParam ( "vel", 0, wheel_speed_instr_[REAR_RIGHT] / ( wheel_diameter_ / 2.0 ) );
         joints_[FRONT_RIGHT]->SetParam ( "vel", 0, wheel_speed_instr_[FRONT_RIGHT] / ( wheel_diameter_ / 2.0 ) );
-        std::cout <<"set vel..." << std::endl;
     }
     last_update_time_+= common::Time ( update_period_ );
     // clang-format on
-
-    std::cout << "update..." << std::endl;
   }
 #ifdef ENABLE_PROFILER
   IGN_PROFILE_END();
