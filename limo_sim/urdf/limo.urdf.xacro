@@ -7,13 +7,14 @@
   <joint name="base_joint" type="fixed">
     <parent link="base_footprint"/>
     <child link="base_link"/>
-    <origin xyz="0.0 0.0 0.010" rpy="0 0 0"/>
+    <origin xyz="0.0 0.0 0.012" rpy="0 0 0"/>
   </joint>
 
   <link name="base_link">
     <visual>
       <geometry>
-        <mesh filename="package://limo_sim/meshes/base_link.stl" scale="1 1 1"/>
+        <!-- <mesh filename="package://limo_sim/meshes/base_link.stl" scale="1 1 1"/> -->
+        <mesh filename="package://limo_sim/meshes/bases/burger_base.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="light_black"/>
     </visual>
@@ -37,7 +38,7 @@
   <joint name="wheel_front_left_joint" type="continuous">
     <parent link="base_link" />
     <child link="wheel_front_left_link" />
-    <origin xyz="0.035 -0.05 0.005" rpy="0 0 -1.57" />
+    <origin xyz="0.1 0.08 0.03" rpy="0 0 0" />
     <axis xyz="0 1 0" />
   </joint>
 
@@ -66,7 +67,7 @@
   <joint name="wheel_rear_left_joint" type="continuous" >
     <parent link="base_link" />
     <child link="wheel_rear_left_link"/>
-    <origin xyz="0.03 0.12 0.005" rpy="0 0 -1.57" />
+    <origin xyz="-0.1 0.08 0.03" rpy="0 0 0" />
     <axis xyz="0 1 0" />
   </joint>
 
@@ -95,8 +96,8 @@
   <joint name="wheel_rear_right_joint" type="continuous">
     <parent link="base_link" />
     <child link="wheel_rear_right_link"/>
-    <origin xyz="-0.035 0.06 0.005" rpy="0 0 1.57" />
-    <axis xyz="0 0 1" />
+    <origin xyz="-0.1 -0.08 0.03" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
   </joint>
 
   <link name="wheel_rear_right_link">
@@ -124,8 +125,8 @@
   <joint name="wheel_front_right_joint" type="continuous" >
     <parent link="base_link" />
     <child link="wheel_front_right_link" />
-    <origin xyz="-0.035 -0.15 0.005" rpy="0 0 1.57"/>
-    <axis xyz="0 0 1"/>
+    <origin xyz="0.1 -0.08 0.03" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
   </joint>
 
   <link name="wheel_front_right_link">
