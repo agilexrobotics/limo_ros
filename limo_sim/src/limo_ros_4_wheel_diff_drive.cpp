@@ -16,20 +16,18 @@
 
 namespace gazebo {
 enum {
-  FRONT_LEFT,
+  FRONT_LEFT = 0,
   REAR_LEFT,
   REAR_RIGHT,
   FRONT_RIGHT,
 };
 
-GazeboRosFourWheelDiffDrive::GazeboRosFourWheelDiffDrive() {
-}
+GazeboRosFourWheelDiffDrive::GazeboRosFourWheelDiffDrive() {}
 GazeboRosFourWheelDiffDrive::~GazeboRosFourWheelDiffDrive() { FiniChild(); }
 
 // load config
 void GazeboRosFourWheelDiffDrive::Load(physics::ModelPtr parent,
                                        sdf::ElementPtr sdf) {
-
   // clang-format off
     this->parent_ = parent;
     gazebo_ros_ = GazeboRosPtr(new GazeboRos(parent, sdf, "FourWheelDiffDrive"));
@@ -116,7 +114,7 @@ void GazeboRosFourWheelDiffDrive::Load(physics::ModelPtr parent,
     joints_[REAR_LEFT]->SetParam("fmax",0,wheel_torque_);
     joints_[REAR_RIGHT]->SetParam("fmax",0,wheel_torque_);
     joints_[FRONT_RIGHT]->SetParam("fmax",0,wheel_torque_);
-  
+
   // clang-format on
 }
 
@@ -181,9 +179,8 @@ void GazeboRosFourWheelDiffDrive::UpdateChild() {
       (current_time - last_update_time_).Double();
 
   if (seconds_since_last_update > update_period_) {
-    if (this->publish_tf_){ 
-        publishOdometry(seconds_since_last_update);
-
+    if (this->publish_tf_) {
+      publishOdometry(seconds_since_last_update);
     }
     if (publishWheelTF_) publishWheelTF();
     if (publishWheelJointState_) publishWheelJointState();
@@ -202,10 +199,16 @@ void GazeboRosFourWheelDiffDrive::UpdateChild() {
             ( fabs ( wheel_speed_[FRONT_LEFT] - current_speed[FRONT_LEFT] ) < 0.01 ) ||
             ( fabs ( wheel_speed_[FRONT_RIGHT] - current_speed[FRONT_RIGHT] ) < 0.01 ) ) {
         //if max_accel == 0, or target speed is reached
-        joints_[FRONT_LEFT]->SetParam ( "vel", 0, wheel_speed_[FRONT_LEFT]/ ( wheel_diameter_ / 2.0 ) );
-        joints_[REAR_LEFT]->SetParam ( "vel", 0, wheel_speed_[REAR_LEFT]/ ( wheel_diameter_ / 2.0 ) );
-        joints_[REAR_RIGHT]->SetParam ( "vel", 0, wheel_speed_[REAR_RIGHT]/ ( wheel_diameter_ / 2.0 ) );
-        joints_[FRONT_RIGHT]->SetParam ( "vel", 0, wheel_speed_[FRONT_RIGHT]/ ( wheel_diameter_ / 2.0 ) );
+        // joints_[FRONT_LEFT]->SetParam ( "vel", 0, wheel_speed_[FRONT_LEFT]/ ( wheel_diameter_ / 2.0 ) );
+        // joints_[REAR_LEFT]->SetParam ( "vel", 0, wheel_speed_[REAR_LEFT]/ ( wheel_diameter_ / 2.0 ) );
+        // joints_[REAR_RIGHT]->SetParam ( "vel", 0, wheel_speed_[REAR_RIGHT]/ ( wheel_diameter_ / 2.0 ) );
+        // joints_[FRONT_RIGHT]->SetParam ( "vel", 0, wheel_speed_[FRONT_RIGHT]/ ( wheel_diameter_ / 2.0 ) );
+        joints_[FRONT_LEFT]->SetParam ( "vel", 0, wheel_speed_[FRONT_LEFT]/ ( wheel_diameter_ / 2.0 ));
+        joints_[REAR_LEFT]->SetParam ( "vel", 0,1);
+        joints_[REAR_RIGHT]->SetParam ( "vel", 0,1);
+        joints_[FRONT_RIGHT]->SetParam ( "vel", 0,1);
+        std::cout << "set vel 1 ..." << std::endl;
+        std::cout << wheel_speed_[FRONT_LEFT]/ ( wheel_diameter_ / 2.0 ) << std::endl;
     } else {
         if ( wheel_speed_[FRONT_LEFT]>=current_speed[FRONT_LEFT] ){
             wheel_speed_instr_[FRONT_LEFT]+=fmin ( wheel_speed_[FRONT_LEFT]-current_speed[FRONT_LEFT],  wheel_accel_ * seconds_since_last_update );
