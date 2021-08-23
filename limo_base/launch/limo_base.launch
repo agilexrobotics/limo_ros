@@ -3,9 +3,11 @@
     <!-- ttyUSB0 for IPC USB serial port -->
     <arg name="port_name" default="ttyTHS1" />
     <arg name="odom_topic_name" default="odom" />
+    <arg name="motion_mode" default="diff" /> <!-- diff, ackermann, mcnamu-->
 
     <node name="limo_base_node" pkg="limo_base" type="limo_base_node" output="screen" >
         <param name="port_name" value="$(arg port_name)" />
         <param name="odom_topic_name" value="$(arg odom_topic_name)" />
+        <param name="motion_mode" value="$(arg motion_mode)" />
     </node>
 </launch>

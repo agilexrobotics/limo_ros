@@ -77,6 +77,7 @@ class LimoROSMessenger {
   ros::Time last_time_;
   ros::Time current_time_;
   uint8_t motion_mode_;  // current motion type
+  std::string motion_mode_string_; // diff, ackermann, mcnamu
 
   void TwistCmdCallback(const geometry_msgs::Twist::ConstPtr &msg);
   void LimoSettingCbk(const limo_msgs::LimoSetting::ConstPtr &msg);

@@ -35,6 +35,7 @@ int main(int argc, char* argv[]) {
                                   std::string("base_link"));
   private_node.param<std::string>("odom_topic_name", messenger.odom_topic_name_,
                                   std::string("odom"));
+  private_node.param<std::string>("motion_mode", messenger.motion_mode_string_, std::string("diff"));
 
   messenger.SetupSubscription();
 

@@ -4,10 +4,12 @@
     <arg name="port_name" default="ttyTHS1"/>
     <arg name="odom_topic_name" default="odom" />
     <arg name="open_rviz" default="false" />
+    <arg name="motion_mode" default="diff" /> <!-- diff, ackermann, mcnamu-->
 
     <include file="$(find limo_base)/launch/limo_base.launch">
         <arg name="port_name" default="$(arg port_name)" />
         <arg name="odom_topic_name" default="$(arg odom_topic_name)" />
+        <arg name="motion_mode" default="$(arg motion_mode)" />
     </include>
 
     <include file="$(find ydlidar_ros)/launch/X2L.launch">

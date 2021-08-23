@@ -50,9 +50,14 @@ void LimoROSMessenger::TwistCmdCallback(
   ROS_INFO("get cmd %lf %lf", msg->linear.x, msg->angular.z);
 
   double steer_cmd = msg->angular.z;  // steer angle, in rad
+
   switch (motion_mode_) {
     case LimoSetting::MOTION_MODE_FOUR_WHEEL_DIFF: {
-      limo_->SetMotionCommand(msg->linear.x, 0, 0, msg->angular.z);
+      if (motion_mode_string_ == "mcnamu") {
+        limo_->SetMotionCommand(msg->linear.x, 0, msg->linear.y, msg->angular.z);
+      } else {
+        limo_->SetMotionCommand(msg->linear.x, 0, 0, msg->angular.z);
+      }
     } break;
     case LimoSetting::MOTION_MODE_ACKERMANN: {
       if (steer_cmd > LimoParams::max_steer_angle_central) {
@@ -174,8 +179,8 @@ void LimoROSMessenger::GenerateImuMsg(const LimoState &state) {
   q.setRPY(state.imu_euler_.roll * DEG_TO_RAD,
            state.imu_euler_.pitch * DEG_TO_RAD,
            state.imu_euler_.yaw * DEG_TO_RAD);
-  tf::Quaternion q2(1,0,0,0);
-  tf::Quaternion q_trans = q2*q;
+  tf::Quaternion q2(1, 0, 0, 0);
+  tf::Quaternion q_trans = q2 * q;
 
   imu_data_.orientation.x = q_trans.x();
   imu_data_.orientation.y = q_trans.y();
@@ -195,8 +200,8 @@ void LimoROSMessenger::GenerateImuMsg(const LimoState &state) {
   imu_data_.orientation_covariance[8] = 1e-6;
 }
 void LimoROSMessenger::PublishOdometryToROS(double linear, double angle_vel,
-                                             double x_linear_vel,
-                                             double y_linear_vel, double dt) {
+                                            double x_linear_vel,
+                                            double y_linear_vel, double dt) {
   linear_speed_ = linear;
   angular_speed_ = angle_vel;
   x_linear_vel_ = x_linear_vel;
