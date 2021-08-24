@@ -15,7 +15,6 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   roslaunch
   rostopic
-  scout_description
   sensor_msgs
 )
 
