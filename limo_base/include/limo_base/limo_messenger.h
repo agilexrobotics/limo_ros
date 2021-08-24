@@ -31,7 +31,8 @@ class LimoROSMessenger {
 
   std::string odom_frame_;
   std::string base_frame_;
-  std::string odom_topic_name_;
+  std::string odom_topic_name_; // default: odom
+  std::string motion_mode_string_; // diff, ackermann, mcnamu
   bool pub_odom_tf_{false};
 
   int sim_control_rate_ = 50;
@@ -77,7 +78,6 @@ class LimoROSMessenger {
   ros::Time last_time_;
   ros::Time current_time_;
   uint8_t motion_mode_;  // current motion type
-  std::string motion_mode_string_; // diff, ackermann, mcnamu
 
   void TwistCmdCallback(const geometry_msgs::Twist::ConstPtr &msg);
   void LimoSettingCbk(const limo_msgs::LimoSetting::ConstPtr &msg);
