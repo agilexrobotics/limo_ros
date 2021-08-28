@@ -61,6 +61,7 @@ if __name__ == "__main__":
     if image is not None:
         cv2.namedWindow('Realsense', cv2.WINDOW_AUTOSIZE)
         cv2.imshow('Realsense', image)
+        cv2.imwrite('realsense.png', image)
         cv2.waitKey(0)
     else:
         print("can not read image")
