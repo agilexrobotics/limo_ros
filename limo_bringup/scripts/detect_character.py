@@ -3,6 +3,8 @@ import cv2
 import sys
 import numpy as np
 
+from read_realsense_image import ReadImage
+
 characters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
               'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
               '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
@@ -17,6 +19,10 @@ class DetectCharacter():
         tmp_image = cv2.imread(path)
         padding = 30
         self.image_ = tmp_image[120 + padding:480 -
+                                padding, 160+padding:640-padding]
+    def SetCVImage(self, img):
+        padding = 30
+        self.image_ = img[120 + padding:480 -
                                 padding, 160+padding:640-padding]
 
     def GenerateDatabase(self):
@@ -112,7 +118,10 @@ class DetectCharacter():
 
 if __name__ == "__main__":
     dc = DetectCharacter()
-    dc.SetImage(
-        '/opt/ros_ws/src/drivers/limo_ros/limo_bringup/scripts/realsense.png')
+    read_img = ReadImage()
+    image = read_img.read()
+    dc.SetCVImage(image)
+    # dc.SetImage(
+    #     '/opt/ros_ws/src/drivers/limo_ros/limo_bringup/scripts/realsense.png')
     # dc.GenerateDatabase()
     dc.Detect()
