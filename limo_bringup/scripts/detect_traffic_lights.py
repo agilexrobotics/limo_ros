@@ -6,6 +6,7 @@ from enum import Enum
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
+from read_realsense_image import ReadImage
 
 def DetectColor(image):
     hsv_img = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -67,11 +68,24 @@ def ImageResize(image, height, inter= cv2.INTER_AREA):
 
 def DetectState(image, type):
     image = ImageResize(image, 200)
+    cimage = image.copy()
     (height, width) = image.shape[:2]
     output = image.copy()
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1, 20, param1=50, param2=30, minRadius=15, maxRadius=30)
+    circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1, 20, param1=50, param2=30, minRadius=2, maxRadius=100)
+
+    if circles is not None:
+        circles = np.uint16(np.around(circles))
+        a,b,c = circles.shape
+        print(a,b,c)
+        for i in range(b):
+            cv2.circle(cimage, (circles[0][i][0], circles[0][i][1]), circles[0][i][2], (0, 0, 255), 3, cv2.LINE_AA)
+            cv2.circle(cimage, (circles[0][i][0], circles[0][i][1]), 2, (0, 255, 0), 3,  
+                    cv2.LINE_AA)  # draw center of circle
+
+    cv2.imshow("circle_img", cimage)
+    cv2.waitKey(0)
 
     overallState = 0
     stateArrow = 0
@@ -84,10 +98,10 @@ def DetectState(image, type):
                 i[1] = i[2]
             
             roi = image[(i[1]-i[2]):(i[1]+i[2]), (i[0]-i[2]):(i[0]+i[2])]
+
             color = DetectColor(roi)
             if color > 0:
                 stateSolid= color
-            
         
         if type == 1:
             overallState = stateArrow + stateSolid +1
@@ -107,11 +121,25 @@ def PlotLightResult(images):
         plt.imshow(img)
     plt.show()
 
-def PlotRealsenseResult():
-    
+def PlotRealsenseResult(image):
+    cv2.imshow("img", image)
+    cv2.imwrite("traffic_light.png", image)
+    cv2.waitKey(0)
+    pass
 
 if __name__ == "__main__":
 
-    light_img_path = ["images/red.jpg", "images/yellow.png", "images/green.png"]
+    # use local image
+    # light_img_path = ["images/red.jpg", "images/yellow.png", "images/green.png"]
+    light_img_path = ["traffic_light_roi.png"]
+
     random.shuffle(light_img_path)
     PlotLightResult(light_img_path)
+
+    # # use realsense capture image
+    # ri = ReadImage()
+    # image = ri.read()
+    # if image is not None:
+    #     PlotRealsenseResult(image)
+    # else:
+    #     print("can not read realsense image")
