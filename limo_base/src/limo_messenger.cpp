@@ -54,7 +54,8 @@ void LimoROSMessenger::TwistCmdCallback(
   switch (motion_mode_) {
     case LimoSetting::MOTION_MODE_FOUR_WHEEL_DIFF: {
       if (motion_mode_string_ == "mcnamu") {
-        limo_->SetMotionCommand(msg->linear.x, 0, msg->linear.y, msg->angular.z);
+        limo_->SetMotionCommand(msg->linear.x, 0, msg->linear.y,
+                                msg->angular.z);
       } else {
         limo_->SetMotionCommand(msg->linear.x, 0, 0, msg->angular.z);
       }
@@ -136,7 +137,6 @@ void LimoROSMessenger::PublishStateToROS() {
       radius = r;
     } break;
     default:
-      ROS_INFO("motion mode not support: %d", motion_mode_);
       break;
   }
 

@@ -8,6 +8,10 @@ import matplotlib.image as mpimg
 
 from read_realsense_image import ReadImage
 
+import rospy
+from std_msgs.msg import String
+
+
 def DetectColor(image):
     hsv_img = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
@@ -123,23 +127,34 @@ def PlotLightResult(images):
 
 def PlotRealsenseResult(image):
     cv2.imshow("img", image)
-    cv2.imwrite("traffic_light.png", image)
+    cv2.imwrite("traffic_light_green.png", image)
     cv2.waitKey(0)
-    pass
+
+def callback(data):
+    rospy.loginfo(rospy.get_caller_id() + "I get : %s", data.data)
+
+def ROSSubscribe():
+    rospy.init_node('traffic_light_detecter')
+    rospy.Subscriber("detect_light", String , callback)
+
+    rate = rospy.Rate(10)
+    while not rospy.is_shutdown():
+        rate.sleep()
 
 if __name__ == "__main__":
 
-    # use local image
+    # # use local image
     # light_img_path = ["images/red.jpg", "images/yellow.png", "images/green.png"]
-    light_img_path = ["traffic_light_roi.png"]
+    # light_img_path = ["traffic_light_roi.png"]
+    # random.shuffle(light_img_path)
+    # PlotLightResult(light_img_path)
 
-    random.shuffle(light_img_path)
-    PlotLightResult(light_img_path)
+    # use realsense capture image
+    ri = ReadImage()
+    image = ri.read()
+    if image is not None:
+        PlotRealsenseResult(image)
+    else:
+        print("can not read realsense image")
 
-    # # use realsense capture image
-    # ri = ReadImage()
-    # image = ri.read()
-    # if image is not None:
-    #     PlotRealsenseResult(image)
-    # else:
-    #     print("can not read realsense image")
+    # ROSSubscribe()
