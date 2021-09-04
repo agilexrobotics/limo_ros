@@ -307,3 +307,289 @@ bool DecodeCanFrame(const struct can_frame *rx_frame, AgxMessage *msg){
       break;
   }
 }
+
+void EncodeCanFrame(const AgxMessage *msg, struct can_frame *tx_frame) {
+  switch (msg->type) {
+    /***************** command frame *****************/
+    case AgxMsgMotionCommand: {
+      tx_frame->can_id = CAN_MSG_MOTION_COMMAND_ID;
+      tx_frame->can_dlc = 8;
+      MotionCommandFrame frame;
+      int16_t linear_cmd =
+          (int16_t)(msg->body.motion_command_msg.linear_velocity * 1000);
+      int16_t angular_cmd =
+          (int16_t)(msg->body.motion_command_msg.angular_velocity * 1000);
+      int16_t lateral_cmd =
+          (int16_t)(msg->body.motion_command_msg.lateral_velocity * 1000);
+      int16_t steering_cmd =
+          (int16_t)(msg->body.motion_command_msg.steering_angle * 1000);
+      frame.linear_velocity.high_byte = (uint8_t)(linear_cmd >> 8);
+      frame.linear_velocity.low_byte = (uint8_t)(linear_cmd & 0x00ff);
+      frame.angular_velocity.high_byte = (uint8_t)(angular_cmd >> 8);
+      frame.angular_velocity.low_byte = (uint8_t)(angular_cmd & 0x00ff);
+      frame.lateral_velocity.high_byte = (uint8_t)(lateral_cmd >> 8);
+      frame.lateral_velocity.low_byte = (uint8_t)(lateral_cmd & 0x00ff);
+      frame.steering_angle.high_byte = (uint8_t)(steering_cmd >> 8);
+      frame.steering_angle.low_byte = (uint8_t)(steering_cmd & 0x00ff);
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+    case AgxMsgLightCommand: {
+      static uint8_t count = 0;
+      tx_frame->can_id = CAN_MSG_LIGHT_COMMAND_ID;
+      tx_frame->can_dlc = 8;
+      LightCommandFrame frame;
+      if (msg->body.light_command_msg.cmd_ctrl_allowed) {
+        frame.cmd_ctrl_allowed = LIGHT_CMD_CTRL_ALLOWED;
+        frame.front_light_mode = msg->body.light_command_msg.front_light.mode;
+        frame.front_light_custom =
+            msg->body.light_command_msg.front_light.custom_value;
+        frame.rear_light_mode = msg->body.light_command_msg.rear_light.mode;
+        frame.rear_light_custom =
+            msg->body.light_command_msg.rear_light.custom_value;
+      } else {
+        frame.cmd_ctrl_allowed = LIGHT_CMD_CTRL_DISALLOWED;
+        frame.front_light_mode = 0;
+        frame.front_light_custom = 0;
+        frame.rear_light_mode = 0;
+        frame.rear_light_custom = 0;
+      }
+      frame.reserved0 = 0;
+      frame.reserved1 = 0;
+      frame.count = count++;
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+    case AgxMsgBrakingCommand: {
+      tx_frame->can_id = CAN_MSG_BRAKING_COMMAND_ID;
+      tx_frame->can_dlc = 8;
+      BrakingCommandFrame frame;
+      // TODO
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+    case AgxMsgSetMotionMode: {
+      tx_frame->can_id = CAN_MSG_SET_MOTION_MODE_ID;
+      tx_frame->can_dlc = 8;
+      SetMotionModeFrame frame;
+      frame.motion_mode = msg->body.motion_mode_msg.motion_mode;
+      frame.reserved0 = 0;
+      frame.reserved1 = 0;
+      frame.reserved2 = 0;
+      frame.reserved3 = 0;
+      frame.reserved4 = 0;
+      frame.reserved5 = 0;
+      frame.reserved6 = 0;
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+
+    /***************** feedback frame ****************/
+    case AgxMsgSystemState: {
+      tx_frame->can_id = CAN_MSG_SYSTEM_STATE_ID;
+      tx_frame->can_dlc = 8;
+      SystemStateFrame frame;
+      frame.vehicle_state = msg->body.system_state_msg.vehicle_state;
+      frame.control_mode = msg->body.system_state_msg.control_mode;
+      uint16_t battery =
+          (uint16_t)(msg->body.system_state_msg.battery_voltage * 10);
+      frame.battery_voltage.high_byte = (uint8_t)(battery >> 8);
+      frame.battery_voltage.low_byte = (uint8_t)(battery & 0x00ff);
+      frame.error_code.high_byte =
+          (uint8_t)(msg->body.system_state_msg.error_code >> 8);
+      frame.error_code.low_byte =
+          (uint8_t)(msg->body.system_state_msg.error_code & 0x00ff);
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+    case AgxMsgMotionState: {
+      tx_frame->can_id = CAN_MSG_MOTION_STATE_ID;
+      tx_frame->can_dlc = 8;
+      MotionStateFrame frame;
+      int16_t linear =
+          (int16_t)(msg->body.motion_state_msg.linear_velocity * 1000);
+      int16_t angular =
+          (int16_t)(msg->body.motion_state_msg.angular_velocity * 1000);
+      int16_t lateral =
+          (int16_t)(msg->body.motion_state_msg.lateral_velocity * 1000);
+      int16_t steering =
+          (int16_t)(msg->body.motion_state_msg.steering_angle * 1000);
+      frame.linear_velocity.high_byte = (uint8_t)(linear >> 8);
+      frame.linear_velocity.low_byte = (uint8_t)(linear & 0x00ff);
+      frame.angular_velocity.high_byte = (uint8_t)(angular >> 8);
+      frame.angular_velocity.low_byte = (uint8_t)(angular & 0x00ff);
+      frame.lateral_velocity.high_byte = (uint8_t)(lateral >> 8);
+      frame.lateral_velocity.low_byte = (uint8_t)(lateral & 0x00ff);
+      frame.steering_angle.high_byte = (uint8_t)(steering >> 8);
+      frame.steering_angle.low_byte = (uint8_t)(steering & 0x00ff);
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+    case AgxMsgLightState: {
+      tx_frame->can_id = CAN_MSG_LIGHT_STATE_ID;
+      tx_frame->can_dlc = 8;
+      LightStateFrame frame;
+      // TODO
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+    case AgxMsgRcState: {
+      tx_frame->can_id = CAN_MSG_RC_STATE_ID;
+      tx_frame->can_dlc = 8;
+      RcStateFrame frame;
+      // TODO
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+    case AgxMsgActuatorHSState: {
+      tx_frame->can_id = msg->body.actuator_hs_state_msg.motor_id +
+                         CAN_MSG_ACTUATOR1_HS_STATE_ID;
+      tx_frame->can_dlc = 8;
+      ActuatorHSStateFrame frame;
+      // TODO
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+    case AgxMsgActuatorLSState: {
+      tx_frame->can_id = msg->body.actuator_ls_state_msg.motor_id +
+                         CAN_MSG_ACTUATOR1_LS_STATE_ID;
+      tx_frame->can_dlc = 8;
+      ActuatorLSStateFrame frame;
+      // TODO
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+    /****************** sensor frame *****************/
+    case AgxMsgOdometry: {
+      tx_frame->can_id = CAN_MSG_ODOMETRY_ID;
+      tx_frame->can_dlc = 8;
+      OdometryFrame frame;
+      // TODO
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+    case AgxMsgImuAccel: {
+      // tx_frame->can_id = CAN_MSG_IMU_ACCEL_ID;
+      // tx_frame->can_dlc = 8;
+      // ImuAccelFrame frame;
+      // // TODO
+      // memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+    case AgxMsgImuGyro: {
+      // tx_frame->can_id = CAN_MSG_IMU_GYRO_ID;
+      // tx_frame->can_dlc = 8;
+      // ImuGyroFrame frame;
+      // // TODO
+      // memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+    case AgxMsgImuEuler: {
+      // tx_frame->can_id = CAN_MSG_IMU_EULER_ID;
+      // tx_frame->can_dlc = 8;
+      // ImuEulerFrame frame;
+      // // TODO
+      // memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+    case AgxMsgSafetyBumper: {
+      tx_frame->can_id = CAN_MSG_SAFETY_BUMPER_ID;
+      tx_frame->can_dlc = 8;
+      SafetyBumperFrame frame;
+      // TODO
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+    case AgxMsgUltrasonic: {
+      tx_frame->can_id =
+          msg->body.ultrasonic_msg.sensor_id + CAN_MSG_ULTRASONIC_1_ID;
+      tx_frame->can_dlc = 8;
+      UltrasonicFrame frame;
+      // TODO
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+    case AgxMsgUwb: {
+      tx_frame->can_id = msg->body.uwb_msg.sensor_id + CAN_MSG_UWB_1_ID;
+      tx_frame->can_dlc = 8;
+      UwbFrame frame;
+      // TODO
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+    case AgxMsgBmsBasic: {
+      tx_frame->can_id = CAN_MSG_BMS_BASIC_ID;
+      tx_frame->can_dlc = 8;
+      BmsBasicFrame frame;
+      // TODO
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+    case AgxMsgBmsExtended: {
+      tx_frame->can_id = CAN_MSG_BMS_EXTENDED_ID;
+      tx_frame->can_dlc = 8;
+      BmsExtendedFrame frame;
+      // TODO
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+    /*************** query/config frame **************/
+    case AgxMsgVersionRequest: {
+      tx_frame->can_id = CAN_MSG_VERSION_REQUEST_ID;
+      tx_frame->can_dlc = 8;
+      VersionRequestFrame frame;
+      // TODO
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+    case AgxMsgVersionResponse: {
+      tx_frame->can_id = CAN_MSG_VERSION_RESPONSE_ID;
+      tx_frame->can_dlc = 8;
+      VersionResponseFrame frame;
+      // TODO
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+    case AgxMsgControlModeConfig: {
+      tx_frame->can_id = CAN_MSG_CTRL_MODE_CONFIG_ID;
+      tx_frame->can_dlc = 8;
+      ControlModeConfigFrame frame;
+      frame.mode = msg->body.control_mode_config_msg.mode;
+      frame.reserved0 = 0;
+      frame.reserved1 = 0;
+      frame.reserved2 = 0;
+      frame.reserved3 = 0;
+      frame.reserved4 = 0;
+      frame.reserved5 = 0;
+      frame.reserved6 = 0;
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+    case AgxMsgSteerNeutralRequest: {
+      tx_frame->can_id = CAN_MSG_STEER_NEUTRAL_REQUEST_ID;
+      tx_frame->can_dlc = 8;
+      SteerNeutralRequestFrame frame;
+      // TODO
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+    case AgxMsgSteerNeutralResponse: {
+      tx_frame->can_id = CAN_MSG_STEER_NEUTRAL_RESPONSE_ID;
+      tx_frame->can_dlc = 8;
+      SteerNeutralResponseFrame frame;
+      // TODO
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+    case AgxMsgStateResetConfig: {
+      tx_frame->can_id = CAN_MSG_STATE_RESET_CONFIG_ID;
+      tx_frame->can_dlc = 8;
+      StateResetConfigFrame frame;
+      // TODO
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+    default:
+      break;
+  }
+}

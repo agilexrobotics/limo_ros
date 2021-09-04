@@ -180,6 +180,11 @@ void LimoDriver::EnableCommandedMode() {
   SendFrame(frame);
 }
 
+LimoState LimoDriver::GetLimoState() {
+  std::lock_guard<std::mutex> lg(state_mutex_);
+  return limo_state_;
+}
+
 void LimoDriver::SetMotionCommand(double linear_vel, double angular_vel,
                                   double lateral_velocity,
                                   double steering_angle) {
@@ -190,4 +195,8 @@ void LimoDriver::SetMotionCommand(double linear_vel, double angular_vel,
 
   // FeedCmdTimeoutWatchdog();
   // TODO:  write
+}
+void LimoDriver::SendFrame(const struct can_frame &frame)
+{
+  
 }

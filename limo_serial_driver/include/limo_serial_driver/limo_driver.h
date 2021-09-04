@@ -4,6 +4,7 @@
 #include <ros/ros.h>
 #include <iostream>
 #include <thread>
+#include <mutex>
 #include "serial_port.h"
 #include "limo_data.h"
 #include "limo_message.h"
@@ -25,7 +26,6 @@ public:
 
     // get robot state
     LimoState GetLimoState();
-    void SendFrame(can_frame frame);
 
 private:
     void readData();
@@ -34,11 +34,12 @@ private:
     void GenerateImuMsg(LimoState& msg);
     void UpdateLimoState(const AgxMessage &status_msg,
                                  LimoState &state);
+    void SendFrame(const struct can_frame &frame);
 
     std::shared_ptr<SerialPort> port_;
     std::shared_ptr<std::thread> read_data_thread_;
     MotionCommandMessage current_motion_cmd_;
-
+    std::mutex state_mutex_;
     LimoState limo_state_;
 };
 
