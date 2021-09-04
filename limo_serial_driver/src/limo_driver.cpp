@@ -1,18 +1,13 @@
 #include "limo_driver.h"
 #include <geometry_msgs/Twist.h>
+#include <limo_serial_driver/limo_driver.h>
 #include <sensor_msgs/Imu.h>
 #include <tf/transform_broadcaster.h>
 #include "limo_data.h"
-#include "limo_msg_parser.h"
 #include "limo_message.h"
-#include <limo_serial_driver/limo_driver.h>
-
+#include "limo_msg_parser.h"
 
 #define DEG_TO_RAD (0.01745329)
-
-LimoDriver::LimoDriver() {
-}
-
 
 void LimoDriver::readData() {
   uint8_t rx_data = 0;
@@ -75,7 +70,7 @@ void LimoDriver::decodeMessage(uint8_t data) {
   }
 }
 
-void LimoDriver::parseFrame(LIMO_t_RAW_t& frame) {
+void LimoDriver::parseFrame(LIMO_t_RAW_t &frame) {
   if (0x321 <= frame.can_id <= 0x323) {
     AgxMessage status_msg;
     can_frame rx_frame;
@@ -151,48 +146,6 @@ void LimoDriver::UpdateLimoState(const AgxMessage &status_msg,
   }
 }
 
-void LimoDriver::GenerateImuMsg(LimoState& state) {
-  sensor_msgs::Imu imu_data_;
-  imu_data_.header.stamp = ros::Time::now();
-  imu_data_.header.frame_id = "imu_link";
-
-  imu_data_.linear_acceleration.x =  state.imu_accel_.accel_x;
-  imu_data_.linear_acceleration.y = -state.imu_accel_.accel_y;
-  imu_data_.linear_acceleration.z = -state.imu_accel_.accel_z;
-
-  imu_data_.angular_velocity.x =  state.imu_gyro_.gyro_x * DEG_TO_RAD;
-  imu_data_.angular_velocity.y = -state.imu_gyro_.gyro_y * DEG_TO_RAD;
-  imu_data_.angular_velocity.z = -state.imu_gyro_.gyro_z * DEG_TO_RAD;
-
-  auto y = state.imu_euler_.yaw;
-  auto p = state.imu_euler_.pitch;
-  auto r = state.imu_euler_.roll;
-
-  tf::Quaternion q;
-  q.setRPY(r * DEG_TO_RAD, p * DEG_TO_RAD, y * DEG_TO_RAD);
-  tf::Quaternion q2(1, 0, 0, 0);
-  tf::Quaternion q_trans = q2 * q;
-
-  imu_data_.orientation.x = q_trans.x();
-  imu_data_.orientation.y = q_trans.y();
-  imu_data_.orientation.z = q_trans.z();
-  imu_data_.orientation.w = q_trans.w();
-
-  imu_data_.linear_acceleration_covariance[0] = 1.0f;
-  imu_data_.linear_acceleration_covariance[4] = 1.0f;
-  imu_data_.linear_acceleration_covariance[8] = 1.0f;
-
-  imu_data_.angular_velocity_covariance[0] = 1e-6;
-  imu_data_.angular_velocity_covariance[4] = 1e-6;
-  imu_data_.angular_velocity_covariance[8] = 1e-6;
-
-  imu_data_.orientation_covariance[0] = 1e-6;
-  imu_data_.orientation_covariance[4] = 1e-6;
-  imu_data_.orientation_covariance[8] = 1e-6;
-
-  imu_data_pub_.publish(imu_data_);
-}
-
 //----------------------------------------------------------------
 void LimoDriver::Connect(std::string dev_name, uint32_t bouadrate) {
   port_ = std::shared_ptr<SerialPort>(new SerialPort(dev_name, bouadrate));
@@ -205,16 +158,15 @@ void LimoDriver::Connect(std::string dev_name, uint32_t bouadrate) {
     exit(-1);
   }
 }
-void LimoDriver::SetMotionMode(uint8_t mode)
-{
-   AgxMessage msg;
-   msg.type = AgxMsgSetMotionMode;
-   msg.body.motion_mode_msg.motion_mode = mode;
+void LimoDriver::SetMotionMode(uint8_t mode) {
+  AgxMessage msg;
+  msg.type = AgxMsgSetMotionMode;
+  msg.body.motion_mode_msg.motion_mode = mode;
 
-   // send to can bus
-   can_frame frame;
-   EncodeCanFrame(&msg, &frame);
-   SendFrame(frame);
+  // send to can bus
+  can_frame frame;
+  EncodeCanFrame(&msg, &frame);
+  SendFrame(frame);
 }
 void LimoDriver::EnableCommandedMode() {
   // construct message
@@ -237,5 +189,5 @@ void LimoDriver::SetMotionCommand(double linear_vel, double angular_vel,
   current_motion_cmd_.steering_angle = steering_angle;
 
   // FeedCmdTimeoutWatchdog();
-  //TODO:  write
+  // TODO:  write
 }

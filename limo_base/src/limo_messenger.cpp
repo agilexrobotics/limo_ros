@@ -20,7 +20,7 @@ using namespace limo_msgs;
 
 #define DEG_TO_RAD (0.01745329)
 
-//TODO: for temporary use
+// TODO: for temporary use
 double FilteVelocity(float data) {
   if (std::fabs(data) <= 0.02) {
     return 0.0;
@@ -155,8 +155,6 @@ void LimoROSMessenger::PublishStateToROS() {
   GenerateImuMsg(state);
   imu_publisher_.publish(imu_data_);
 
-  // printf("l_v: %f, a_v: %f, x_v: %f, y_v: %f, dt: %f \n\n", l_v, a_v, x_v,
-  // y_v, dt);
   PublishOdometryToROS(l_v, a_v, x_v, y_v, dt);
 
   last_time_ = current_time_;

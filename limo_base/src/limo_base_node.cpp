@@ -41,7 +41,6 @@ int main(int argc, char* argv[]) {
   if(port_name.find("tty") != port_name.npos){
     port_name= "/dev/" + port_name;
     robot->Connect(port_name,460800);
-    robot->SetBaudRate(460800);
     robot->EnableCommandedMode();
     ROS_INFO("open the serial port: %s", port_name.c_str());
   }
@@ -51,7 +50,6 @@ int main(int argc, char* argv[]) {
   while (ros::ok()) {
     ros::spinOnce();
     messenger.PublishStateToROS();
-    // robot->SetMotionCommand(0.1,0.38);
 
     if(count>=20){
       robot->EnableCommandedMode();
