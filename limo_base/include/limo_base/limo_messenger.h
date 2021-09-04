@@ -17,17 +17,18 @@
 #include <ros/master.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <sensor_msgs/Imu.h>
-#include <ugv_sdk/limo_base.h>
 #include "limo_base/limo_params.h"
+#include <limo_serial_driver/limo_driver.h>
+#include <memory.h>
+#include <mutex>
 
 
-using namespace westonrobot;
 namespace agx {
 
 class LimoROSMessenger {
  public:
   explicit LimoROSMessenger(ros::NodeHandle *nh);
-  LimoROSMessenger(LimoBase *limo, ros::NodeHandle *nh);
+  LimoROSMessenger(LimoDriver *limo, ros::NodeHandle *nh);
 
   std::string odom_frame_;
   std::string base_frame_;
@@ -48,7 +49,7 @@ class LimoROSMessenger {
   double ConvertCentralAngleToInner(double angle);
 
  private:
-  LimoBase *limo_;
+  LimoDriver *limo_;
   ros::NodeHandle *nh_;
   std::mutex twist_mutex_;
   geometry_msgs::Twist current_twist_;

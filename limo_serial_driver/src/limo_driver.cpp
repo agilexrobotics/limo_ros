@@ -5,32 +5,15 @@
 #include "limo_data.h"
 #include "limo_msg_parser.h"
 #include "limo_message.h"
+#include <limo_serial_driver/limo_driver.h>
 
 
 #define DEG_TO_RAD (0.01745329)
 
 LimoDriver::LimoDriver() {
-  ros::NodeHandle nh;
-  ros::NodeHandle private_nh("~");
-
-  std::string dev_path;
-  private_nh.param("depth_path", dev_path, std::string("/dev/ttyTHS1"));
-
-  port_ = std::shared_ptr<SerialPort>(new SerialPort(dev_path, B460800));
-
-  imu_data_pub_ = nh.advertise<sensor_msgs::Imu>("/imu", 10, true);
-  initialize();
 }
 
-void LimoDriver::initialize() {
-  if (port_->openPort() == 0) {
-    read_data_thread_ = std::shared_ptr<std::thread>(
-        new std::thread(std::bind(&LimoDriver::readData, this)));
-  } else {
-    ROS_ERROR("Failed to open %s", port_->getDevPath().c_str());
-    exit(-1);
-  }
-}
+
 void LimoDriver::readData() {
   uint8_t rx_data = 0;
   while (ros::ok()) {
@@ -100,8 +83,6 @@ void LimoDriver::parseFrame(LIMO_t_RAW_t& frame) {
     memcpy(&rx_frame.data[0], &frame.data[0], 8);
     DecodeCanFrame(&rx_frame, &status_msg);
     UpdateLimoState(status_msg, limo_state_);
-
-    GenerateImuMsg(limo_state_);
   }
 }
 
@@ -212,14 +193,49 @@ void LimoDriver::GenerateImuMsg(LimoState& state) {
   imu_data_pub_.publish(imu_data_);
 }
 
-int main(int argc, char** argv) {
-  ros::init(argc, argv, "limo_driver");
-  ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME,
-                                 ros::console::levels::Info);
+//----------------------------------------------------------------
+void LimoDriver::Connect(std::string dev_name, uint32_t bouadrate) {
+  port_ = std::shared_ptr<SerialPort>(new SerialPort(dev_name, bouadrate));
+  if (port_->openPort() == 0) {
+    read_data_thread_ = std::shared_ptr<std::thread>(
+        new std::thread(std::bind(&LimoDriver::readData, this)));
+  } else {
+    ROS_ERROR("Failed to open %s", port_->getDevPath().c_str());
+    port_->closePort();
+    exit(-1);
+  }
+}
+void LimoDriver::SetMotionMode(uint8_t mode)
+{
+   AgxMessage msg;
+   msg.type = AgxMsgSetMotionMode;
+   msg.body.motion_mode_msg.motion_mode = mode;
 
-  LimoDriver driver;
+   // send to can bus
+   can_frame frame;
+   EncodeCanFrame(&msg, &frame);
+   SendFrame(frame);
+}
+void LimoDriver::EnableCommandedMode() {
+  // construct message
+  AgxMessage msg;
+  msg.type = AgxMsgControlModeConfig;
+  msg.body.control_mode_config_msg.mode = CONTROL_MODE_CAN;
 
-  ros::spin();
+  // encode msg to can frame and send to bus
+  can_frame frame;
+  EncodeCanFrame(&msg, &frame);
+  SendFrame(frame);
+}
 
-  return 0;
+void LimoDriver::SetMotionCommand(double linear_vel, double angular_vel,
+                                  double lateral_velocity,
+                                  double steering_angle) {
+  current_motion_cmd_.linear_velocity = linear_vel;
+  current_motion_cmd_.angular_velocity = angular_vel;
+  current_motion_cmd_.lateral_velocity = lateral_velocity;
+  current_motion_cmd_.steering_angle = steering_angle;
+
+  // FeedCmdTimeoutWatchdog();
+  //TODO:  write
 }

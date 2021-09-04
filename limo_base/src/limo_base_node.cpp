@@ -10,12 +10,11 @@
 #include "limo_base/limo_messenger.h"
 #include "limo_base/limo_params.h"
 
-#include <ugv_sdk/limo_base.h>
+#include <limo_serial_driver/limo_driver.h>
 
 using namespace agx;
-using namespace westonrobot;
 
-std::shared_ptr<LimoBase> robot;
+std::shared_ptr<LimoDriver> robot;
 
 int main(int argc, char* argv[]) {
   ros::init(argc, argv, "limo_node");
@@ -23,7 +22,6 @@ int main(int argc, char* argv[]) {
 
   ROS_INFO("limo_node start...");
 
-  robot = std::make_shared<LimoBase>();
   LimoROSMessenger messenger(robot.get(), &node);
 
   std::string port_name;
@@ -60,7 +58,7 @@ int main(int argc, char* argv[]) {
       count=0;
     }
     count++;
-    
+
     rate.sleep();
   }
 

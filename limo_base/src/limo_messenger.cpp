@@ -20,7 +20,7 @@ using namespace limo_msgs;
 
 #define DEG_TO_RAD (0.01745329)
 
-// for template use
+//TODO: for temporary use
 double FilteVelocity(float data) {
   if (std::fabs(data) <= 0.02) {
     return 0.0;
@@ -30,7 +30,7 @@ double FilteVelocity(float data) {
 
 LimoROSMessenger::LimoROSMessenger(ros::NodeHandle *nh)
     : limo_(nullptr), nh_(nh) {}
-LimoROSMessenger::LimoROSMessenger(LimoBase *limo, ros::NodeHandle *nh)
+LimoROSMessenger::LimoROSMessenger(LimoDriver *limo, ros::NodeHandle *nh)
     : limo_(limo), nh_(nh) {}
 void LimoROSMessenger::SetupSubscription() {
   odom_publisher_ =
@@ -80,6 +80,7 @@ void LimoROSMessenger::LimoSettingCbk(
   // set motion mode
   ROS_INFO("got setting %d", msg->motion_mode);
 }
+
 void LimoROSMessenger::PublishStateToROS() {
   current_time_ = ros::Time::now();
   double dt = (current_time_ - last_time_).toSec();

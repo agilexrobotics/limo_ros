@@ -1,0 +1,1 @@
+read the serial port data from `/dev/ttyTHS1`

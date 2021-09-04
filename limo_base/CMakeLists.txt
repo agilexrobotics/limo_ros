@@ -11,7 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   limo_msgs
   roscpp
   rospy
-  ugv_sdk
+  limo_serial_driver
   geometry_msgs
   tf2
   tf2_ros
