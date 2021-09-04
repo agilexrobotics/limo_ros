@@ -14,6 +14,8 @@ typedef struct {
   uint8_t data[8];
   uint16_t length;
   uint8_t RxCK;  // Rx check
+  uint8_t hight;
+  uint8_t low;
 } LIMO_t_RAW_t;
 
 enum {

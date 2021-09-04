@@ -47,7 +47,7 @@ void LimoROSMessenger::SetupSubscription() {
 
 void LimoROSMessenger::TwistCmdCallback(
     const geometry_msgs::Twist::ConstPtr &msg) {
-  ROS_INFO("get cmd %lf %lf", msg->linear.x, msg->angular.z);
+  // ROS_INFO("get cmd %lf %lf", msg->linear.x, msg->angular.z);
 
   double steer_cmd = msg->angular.z;  // steer angle, in rad
 

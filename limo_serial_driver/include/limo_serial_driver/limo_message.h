@@ -372,6 +372,27 @@ typedef struct {
   } body;
 } AgxMessage;
 
+
+struct LimoState {
+  // system state
+  SystemStateMessage system_state;
+  MotionStateMessage motion_state;
+  LightStateMessage light_state;
+
+  RcStateMessage rc_state;
+
+  ActuatorHSStateMessage actuator_hs_state[8];
+  ActuatorLSStateMessage actuator_ls_state[8];
+  MotionModeFeedbackMessage current_motion_mode;
+
+  // sensor data
+  OdometryMessage odometry;
+
+  // imu
+  ImuAccelMessage imu_accel_;
+  ImuGyroMessage imu_gyro_;
+  ImuEulerMessage imu_euler_;
+};
 #ifdef __cplusplus
 }
 #endif
