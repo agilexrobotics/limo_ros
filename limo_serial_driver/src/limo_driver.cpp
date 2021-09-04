@@ -9,6 +9,11 @@
 
 #define DEG_TO_RAD (0.01745329)
 
+LimoDriver::LimoDriver() { send_buf_ = new uint8_t[1024]; }
+LimoDriver::~LimoDriver() {
+  if (send_buf_) delete[] send_buf_;
+}
+
 void LimoDriver::readData() {
   uint8_t rx_data = 0;
   while (ros::ok()) {
@@ -196,7 +201,8 @@ void LimoDriver::SetMotionCommand(double linear_vel, double angular_vel,
   // FeedCmdTimeoutWatchdog();
   // TODO:  write
 }
-void LimoDriver::SendFrame(const struct can_frame &frame)
-{
-  
+void LimoDriver::SendFrame(const struct can_frame &frame) {
+  int len = sizeof(frame);
+  memcpy(&send_buf_[0], (void *)&frame, len);
+  port_->writeData(send_buf_, len);
 }

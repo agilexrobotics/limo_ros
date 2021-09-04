@@ -12,8 +12,8 @@
 
 class LimoDriver {
 public:
-    LimoDriver(){}
-    ~LimoDriver() {}
+    LimoDriver();
+    ~LimoDriver();
 
     // set up connection
     void Connect(std::string dev_name, uint32_t bouadrate);
@@ -41,6 +41,7 @@ private:
     MotionCommandMessage current_motion_cmd_;
     std::mutex state_mutex_;
     LimoState limo_state_;
+    uint8_t *send_buf_;
 };
 
 #endif // LIMO_DRIVER_H
