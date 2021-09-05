@@ -198,8 +198,15 @@ void LimoDriver::SetMotionCommand(double linear_vel, double angular_vel,
   current_motion_cmd_.lateral_velocity = lateral_velocity;
   current_motion_cmd_.steering_angle = steering_angle;
 
-  // FeedCmdTimeoutWatchdog();
-  // TODO:  write
+  AgxMessage msg;
+  msg.type = AgxMsgMotionCommand;
+
+  msg.body.motion_command_msg = current_motion_cmd_;
+
+  // send to can bus
+  can_frame frame;
+  EncodeCanFrame(&msg, &frame);
+  SendFrame(frame);
 }
 void LimoDriver::SendFrame(const struct can_frame &frame) {
   int len = sizeof(frame);
