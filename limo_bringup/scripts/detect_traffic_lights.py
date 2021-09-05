@@ -77,7 +77,9 @@ def DetectState(image, type):
     output = image.copy()
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1, 20, param1=50, param2=30, minRadius=2, maxRadius=100)
+    cv2.imshow("gray", gray)
+
+    circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1, 20, param1=50, param2=30, minRadius=10, maxRadius=30)
 
     if circles is not None:
         circles = np.uint16(np.around(circles))
@@ -126,8 +128,15 @@ def PlotLightResult(images):
     plt.show()
 
 def PlotRealsenseResult(image):
-    cv2.imshow("img", image)
-    cv2.imwrite("traffic_light_green.png", image)
+    image_roi = image[0:200, 300:380]
+    cv2.imshow("img", image_roi)
+
+    img = image_roi
+    label = TLState(DetectState(image_roi, TLType.regular.value)).name
+    plt.plot()
+    plt.title(label)
+    plt.imshow(img)
+    plt.show()
     cv2.waitKey(0)
 
 def callback(data):
@@ -145,7 +154,7 @@ if __name__ == "__main__":
 
     # # use local image
     # light_img_path = ["images/red.jpg", "images/yellow.png", "images/green.png"]
-    # light_img_path = ["traffic_light_roi.png"]
+    # light_img_path = ["traffic_light_red_roi.png", "traffic_light_yellow_roi.png", "traffic_light_green_roi.png"]
     # random.shuffle(light_img_path)
     # PlotLightResult(light_img_path)
 
