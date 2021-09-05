@@ -14,7 +14,7 @@
 
 using namespace agx;
 
-std::shared_ptr<LimoDriver> robot;
+
 
 int main(int argc, char* argv[]) {
   ros::init(argc, argv, "limo_node");
@@ -22,6 +22,7 @@ int main(int argc, char* argv[]) {
 
   ROS_INFO("limo_node start...");
 
+  std::shared_ptr<LimoDriver> robot = std::make_shared<LimoDriver>();
   LimoROSMessenger messenger(robot.get(), &node);
 
   std::string port_name;
@@ -40,7 +41,7 @@ int main(int argc, char* argv[]) {
   // connect to the serial port
   if(port_name.find("tty") != port_name.npos){
     port_name= "/dev/" + port_name;
-    robot->Connect(port_name,460800);
+    robot->Connect(port_name,B460800);
     robot->EnableCommandedMode();
     ROS_INFO("open the serial port: %s", port_name.c_str());
   }
@@ -56,7 +57,6 @@ int main(int argc, char* argv[]) {
       count=0;
     }
     count++;
-
     rate.sleep();
   }
 

@@ -76,18 +76,18 @@ void LimoDriver::decodeMessage(uint8_t data) {
 }
 
 void LimoDriver::parseFrame(LIMO_t_RAW_t &frame) {
-  if (0x321 <= frame.can_id <= 0x323) {
     AgxMessage status_msg;
     can_frame rx_frame;
     rx_frame.can_id = frame.can_id;
     memcpy(&rx_frame.data[0], &frame.data[0], 8);
     DecodeCanFrame(&rx_frame, &status_msg);
     UpdateLimoState(status_msg, limo_state_);
-  }
 }
 
 void LimoDriver::UpdateLimoState(const AgxMessage &status_msg,
                                  LimoState &state) {
+  std::lock_guard<std::mutex> lg(state_mutex_);
+
   switch (status_msg.type) {
     case AgxMsgSystemState: {
       state.system_state = status_msg.body.system_state_msg;
@@ -209,7 +209,20 @@ void LimoDriver::SetMotionCommand(double linear_vel, double angular_vel,
   SendFrame(frame);
 }
 void LimoDriver::SendFrame(const struct can_frame &frame) {
-  int len = sizeof(frame);
-  memcpy(&send_buf_[0], (void *)&frame, len);
-  port_->writeData(send_buf_, len);
+  size_t len = frame.can_dlc;
+  if(len>8){
+    return;
+  }
+  uint32_t checksum = 0;
+  uint8_t frame_len = 0x0e;
+  uint8_t data[frame_len] = {0x55, frame_len};
+  data[2] = (uint8_t)(frame.can_id >> 8);
+  data[3] = (uint8_t)(frame.can_id & 0xff);
+  for(size_t i=0; i<len; i++){
+    data[i+4] = frame.data[i];
+    checksum += frame.data[i];
+  }
+  data[frame_len - 1] = (uint8_t)(checksum &0xff);
+
+  port_->writeData(data, frame_len);
 }
