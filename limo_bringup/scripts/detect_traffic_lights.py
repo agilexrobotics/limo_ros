@@ -141,6 +141,12 @@ def PlotRealsenseResult(image):
 
 def callback(data):
     rospy.loginfo(rospy.get_caller_id() + "I get : %s", data.data)
+    ri = ReadImage()
+    image = ri.read()
+    if image is not None:
+        PlotRealsenseResult(image)
+    else:
+        print("can not read realsense image")
 
 def ROSSubscribe():
     rospy.init_node('traffic_light_detecter')
@@ -152,13 +158,13 @@ def ROSSubscribe():
 
 if __name__ == "__main__":
 
-    # # use local image
+    # #Test 1.  use local image
     # light_img_path = ["images/red.jpg", "images/yellow.png", "images/green.png"]
     # light_img_path = ["traffic_light_red_roi.png", "traffic_light_yellow_roi.png", "traffic_light_green_roi.png"]
     # random.shuffle(light_img_path)
     # PlotLightResult(light_img_path)
 
-    # use realsense capture image
+    #Test 2.  use realsense capture image
     ri = ReadImage()
     image = ri.read()
     if image is not None:
