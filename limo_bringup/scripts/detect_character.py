@@ -2,6 +2,9 @@
 import cv2
 import sys
 import numpy as np
+import rospy
+from std_msgs.msg import String
+from enum import Enum
 
 from read_realsense_image import ReadImage
 
@@ -9,7 +12,8 @@ characters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', '
               'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
               '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 keys = [65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 97, 98, 99, 100, 101, 102,
-            103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57]
+        103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57]
+
 
 class DetectCharacter():
     def __init__(self):
@@ -20,10 +24,11 @@ class DetectCharacter():
         padding = 30
         self.image_ = tmp_image[120 + padding:480 -
                                 padding, 160+padding:640-padding]
+
     def SetCVImage(self, img):
         padding = 30
         self.image_ = img[120 + padding:480 -
-                                padding, 160+padding:640-padding]
+                          padding, 160+padding:640-padding]
 
     def GenerateDatabase(self):
         if self.image_ is None:
@@ -64,14 +69,14 @@ class DetectCharacter():
                         sample = roismall.reshape((1, 900))
                         samples = np.append(samples, sample, 0)
                         print("the key: ", chr(key))
-                    
+
                     if count > 100:
                         break
-                    
-                    count+=1
+
+                    count += 1
 
         responses = np.array(responses, np.float32)
-        responses = responses.reshape((responses.size,1))
+        responses = responses.reshape((responses.size, 1))
 
         np.savetxt('generalresponses_chars.data', responses)
         np.savetxt('generalsamples_chars.data', samples)
@@ -79,7 +84,7 @@ class DetectCharacter():
     def Detect(self):
         responses = np.loadtxt('generalresponses_chars.data', dtype=np.float32)
         samples = np.loadtxt('generalsamples_chars.data', dtype=np.float32)
-        responses = responses.reshape((responses.size,1))
+        responses = responses.reshape((responses.size, 1))
 
         model = cv2.ml.KNearest_create()
         model.train(samples, cv2.ml.ROW_SAMPLE, responses)
@@ -100,23 +105,24 @@ class DetectCharacter():
                                   (x+w, y+h), (0, 0, 255), 2)
                     roi = thresh[y:y+h, x:x+w]
                     roismall = cv2.resize(roi, (30, 30))
-                    roismall = roismall.reshape((1,900))
+                    roismall = roismall.reshape((1, 900))
                     roismall = np.float32(roismall)
 
                     cv2.imshow("norm", self.image_)
                     cv2.imshow("small", roismall)
 
-                    retval, results, neigh_resp, dists = model.findNearest(roismall, k=1)
+                    retval, results, neigh_resp, dists = model.findNearest(
+                        roismall, k=1)
                     string = str((chr(results[0][0])))
                     chars.append(chr((results[0][0])))
                     print("result: ", results[0][0])
-                    cv2.putText(out, string, (x, y+h), 0, 1, (0, 255,0))
+                    cv2.putText(out, string, (x, y+h), 0, 1, (0, 255, 0))
 
                     cv2.imshow('out', out)
                     key = cv2.waitKey(0)
 
 
-if __name__ == "__main__":
+def Callback(data):
     dc = DetectCharacter()
     read_img = ReadImage()
     image = read_img.read()
@@ -125,3 +131,26 @@ if __name__ == "__main__":
     #     '/opt/ros_ws/src/drivers/limo_ros/limo_bringup/scripts/realsense.png')
     # dc.GenerateDatabase()
     dc.Detect()
+
+
+def ROSSubscribe():
+    rospy.init_node("detect_character_node")
+    rospy.Subscriber("detect_character", String, Callback)
+
+    rate = rospy.Rate(50)
+    while not rospy.shutdown():
+        rate.sleep()
+
+
+if __name__ == "__main__":
+    # Test 1.
+    # dc = DetectCharacter()
+    # read_img = ReadImage()
+    # image = read_img.read()
+    # dc.SetCVImage(image)
+    # # dc.SetImage(
+    # #     '/opt/ros_ws/src/drivers/limo_ros/limo_bringup/scripts/realsense.png')
+    # # dc.GenerateDatabase()
+    # dc.Detect()
+
+    ROSSubscribe()
