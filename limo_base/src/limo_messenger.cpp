@@ -54,9 +54,9 @@ void LimoROSMessenger::TwistCmdCallback(
   switch (motion_mode_) {
     case LimoSetting::MOTION_MODE_FOUR_WHEEL_DIFF: {
       if (motion_mode_string_ == "mcnamu") {
-        limo_->SetMotionCommand(msg->linear.x, msg->angular.z, msg->linear.y);
+        limo_->SetMotionCommand(msg->linear.x, msg->angular.z, msg->linear.y, 0);
       } else {
-        limo_->SetMotionCommand(msg->linear.x, msg->angular.z， 0, 0);
+        limo_->SetMotionCommand(msg->linear.x, msg->angular.z, 0, 0);
       }
     } break;
     case LimoSetting::MOTION_MODE_ACKERMANN: {
