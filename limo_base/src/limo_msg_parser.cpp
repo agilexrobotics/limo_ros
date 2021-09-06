@@ -1,3 +1,11 @@
+/**
+ * @Kit       : Qt-Creator: Desktop
+ * @Author    : Wang Zhe
+ * @Date      : 2021-09-06  14:45:31
+ * @FileName  : limo_msg_parser.cpp
+ * @Mail      : zhe.wang@agilex.ai
+ * Copyright  : AgileX Robotics (2021)
+ **/
 
 #include "limo_message.h"
 #include "limo_protocol_parser.h"

@@ -1,12 +1,11 @@
-/*
- * agilex_message.h
- *
- * Created on: Dec 10, 2020 11:47
- * Description:
- *  all values are using SI units (e.g. meter/second/radian)
- *
- * Copyright (c) 2020 Ruixiang Du (rdu)
- */
+/**
+ * @Kit       : Qt-Creator: Desktop
+ * @Author    : Wang Zhe
+ * @Date      : 2021-09-06  14:44:48
+ * @FileName  : limo_message.h
+ * @Mail      : zhe.wang@agilex.ai
+ * Copyright  : AgileX Robotics (2021)
+ **/
 
 #ifndef LIMO_MESSAGE_H
 #define LIMO_MESSAGE_H

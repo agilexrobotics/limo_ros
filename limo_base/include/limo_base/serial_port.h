@@ -1,3 +1,12 @@
+/**
+ * @Kit       : Qt-Creator: Desktop
+ * @Author    : Wang Zhe
+ * @Date      : 2021-09-06  14:45:12
+ * @FileName  : serial_port.h
+ * @Mail      : zhe.wang@agilex.ai
+ * Copyright  : AgileX Robotics (2021)
+ **/
+
 #ifndef SERIAL_PORT_H
 #define SERIAL_PORT_H
 
