@@ -11,7 +11,6 @@ find_package(catkin REQUIRED COMPONENTS
   limo_msgs
   roscpp
   rospy
-  limo_serial_driver
   geometry_msgs
   tf2
   tf2_ros
@@ -123,6 +122,7 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
   include
+  include/${PROJECT_NAME}
   ${catkin_INCLUDE_DIRS}
 )
 

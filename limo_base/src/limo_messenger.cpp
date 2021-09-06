@@ -54,10 +54,9 @@ void LimoROSMessenger::TwistCmdCallback(
   switch (motion_mode_) {
     case LimoSetting::MOTION_MODE_FOUR_WHEEL_DIFF: {
       if (motion_mode_string_ == "mcnamu") {
-        limo_->SetMotionCommand(msg->linear.x, 0, msg->linear.y,
-                                msg->angular.z);
+        limo_->SetMotionCommand(msg->linear.x, msg->angular.z, msg->linear.y);
       } else {
-        limo_->SetMotionCommand(msg->linear.x, 0, 0, msg->angular.z);
+        limo_->SetMotionCommand(msg->linear.x, msg->angular.z， 0, 0);
       }
     } break;
     case LimoSetting::MOTION_MODE_ACKERMANN: {
@@ -68,7 +67,7 @@ void LimoROSMessenger::TwistCmdCallback(
         steer_cmd = -LimoParams::max_steer_angle_central;
       }
       double phi_i = ConvertCentralAngleToInner(steer_cmd);
-      limo_->SetMotionCommand(msg->linear.x, phi_i);
+      limo_->SetMotionCommand(msg->linear.x, 0, 0, phi_i);
     } break;
     default:
       ROS_INFO("motion mode not supported in receive cmd_vel");

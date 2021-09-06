@@ -36,10 +36,10 @@ bool DecodeCanFrame(const struct can_frame *rx_frame, AgxMessage *msg){
       LightCommandFrame *frame = (LightCommandFrame *)(rx_frame->data);
       msg->body.light_command_msg.cmd_ctrl_allowed =
           (frame->cmd_ctrl_allowed != 0) ? true : false;
-      msg->body.light_command_msg.front_light.mode = frame->front_light_mode;
+      msg->body.light_command_msg.front_light.mode = (LightMode)frame->front_light_mode;
       msg->body.light_command_msg.front_light.custom_value =
           frame->front_light_custom;
-      msg->body.light_command_msg.rear_light.mode = frame->rear_light_mode;
+      msg->body.light_command_msg.rear_light.mode = (LightMode)frame->rear_light_mode;
       msg->body.light_command_msg.rear_light.custom_value =
           frame->rear_light_custom;
       break;
@@ -53,8 +53,8 @@ bool DecodeCanFrame(const struct can_frame *rx_frame, AgxMessage *msg){
     case CAN_MSG_SYSTEM_STATE_ID: {
       msg->type = AgxMsgSystemState;
       SystemStateFrame *frame = (SystemStateFrame *)(rx_frame->data);
-      msg->body.system_state_msg.vehicle_state = frame->vehicle_state;
-      msg->body.system_state_msg.control_mode = frame->control_mode;
+      msg->body.system_state_msg.vehicle_state = (VehicleState)frame->vehicle_state;
+      msg->body.system_state_msg.control_mode = (ControlMode)frame->control_mode;
       msg->body.system_state_msg.battery_voltage =
           (int16_t)((uint16_t)(frame->battery_voltage.low_byte) |
                     (uint16_t)(frame->battery_voltage.high_byte) << 8) *
@@ -62,7 +62,7 @@ bool DecodeCanFrame(const struct can_frame *rx_frame, AgxMessage *msg){
       msg->body.system_state_msg.error_code =
           (uint16_t)(frame->error_code.low_byte) |
           (uint16_t)(frame->error_code.high_byte) << 8;
-      msg->body.system_state_msg.motion_mode = frame->motion_mode;
+      msg->body.system_state_msg.motion_mode = (MotionMode)frame->motion_mode;
       break;
     }
     case CAN_MSG_MOTION_STATE_ID: {
@@ -91,10 +91,10 @@ bool DecodeCanFrame(const struct can_frame *rx_frame, AgxMessage *msg){
       LightStateFrame *frame = (LightStateFrame *)(rx_frame->data);
       msg->body.light_command_msg.cmd_ctrl_allowed =
           (frame->cmd_ctrl_allowed != 0) ? true : false;
-      msg->body.light_command_msg.front_light.mode = frame->front_light_mode;
+      msg->body.light_command_msg.front_light.mode = (LightMode)frame->front_light_mode;
       msg->body.light_command_msg.front_light.custom_value =
           frame->front_light_custom;
-      msg->body.light_command_msg.rear_light.mode = frame->rear_light_mode;
+      msg->body.light_command_msg.rear_light.mode = (LightMode)frame->rear_light_mode;
       msg->body.light_command_msg.rear_light.custom_value =
           frame->rear_light_custom;
       break;
@@ -283,7 +283,7 @@ bool DecodeCanFrame(const struct can_frame *rx_frame, AgxMessage *msg){
       msg->type = AgxMsgControlModeConfig;
       ControlModeConfigFrame *frame =
           (ControlModeConfigFrame *)(rx_frame->data);
-      msg->body.control_mode_config_msg.mode = frame->mode;
+      msg->body.control_mode_config_msg.mode = (ControlMode)frame->mode;
       break;
     }
     case CAN_MSG_STEER_NEUTRAL_REQUEST_ID: {

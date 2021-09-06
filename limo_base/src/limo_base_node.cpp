@@ -10,7 +10,7 @@
 #include "limo_base/limo_messenger.h"
 #include "limo_base/limo_params.h"
 
-#include <limo_serial_driver/limo_driver.h>
+#include <limo_driver.h>
 
 using namespace agx;
 

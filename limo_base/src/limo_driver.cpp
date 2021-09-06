@@ -1,9 +1,7 @@
 #include "limo_driver.h"
 #include <geometry_msgs/Twist.h>
-#include <limo_serial_driver/limo_driver.h>
 #include <sensor_msgs/Imu.h>
 #include <tf/transform_broadcaster.h>
-#include "limo_data.h"
 #include "limo_message.h"
 #include "limo_msg_parser.h"
 

@@ -6,7 +6,6 @@
 #include <thread>
 #include <mutex>
 #include "serial_port.h"
-#include "limo_data.h"
 #include "limo_message.h"
 #include "limo_msg_parser.h"
 

@@ -11,17 +11,16 @@
 #define LIMO_MESSENGER_H
 
 #include <limo_msgs/LimoSetting.h>
+#include <memory.h>
 #include <nav_msgs/Odometry.h>
-#include <ros/ros.h>
 #include <ros/console.h>
 #include <ros/master.h>
-#include <tf2_ros/transform_broadcaster.h>
+#include <ros/ros.h>
 #include <sensor_msgs/Imu.h>
-#include "limo_base/limo_params.h"
-#include <limo_serial_driver/limo_driver.h>
-#include <memory.h>
+#include <tf2_ros/transform_broadcaster.h>
 #include <mutex>
-
+#include "limo_base/limo_params.h"
+#include "limo_driver.h"
 
 namespace agx {
 
@@ -32,13 +31,13 @@ class LimoROSMessenger {
 
   std::string odom_frame_;
   std::string base_frame_;
-  std::string odom_topic_name_; // default: odom
-  std::string motion_mode_string_; // diff, ackermann, mcnamu
+  std::string odom_topic_name_;     // default: odom
+  std::string motion_mode_string_;  // diff, ackermann, mcnamu
   bool pub_odom_tf_{false};
 
   int sim_control_rate_ = 50;
 
-  void GenerateImuMsg(const LimoState& state);
+  void GenerateImuMsg(const LimoState &state);
   void SetupSubscription();
   void PublishStateToROS();
   void PublishOdometryToROS(double linear, double angle_vel,
@@ -55,11 +54,11 @@ class LimoROSMessenger {
   geometry_msgs::Twist current_twist_;
   sensor_msgs::Imu imu_data_;
 
-  ros::Publisher odom_publisher_;      // robot odometry
-  ros::Publisher status_publisher_;    // robot status
-  ros::Publisher imu_publisher_;       // imu data
-  ros::Subscriber motion_cmd_sub_;     // get motion control
-  ros::Subscriber light_cmd_sub_;      // get light control
+  ros::Publisher odom_publisher_;     // robot odometry
+  ros::Publisher status_publisher_;   // robot status
+  ros::Publisher imu_publisher_;      // imu data
+  ros::Subscriber motion_cmd_sub_;    // get motion control
+  ros::Subscriber light_cmd_sub_;     // get light control
   ros::Subscriber limo_setting_sub_;  // system setting
   tf2_ros::TransformBroadcaster tf_broadcaster_;
 
