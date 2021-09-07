@@ -2,18 +2,16 @@
 import cv2
 import numpy as np
 import random
+import time
 from enum import Enum
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
 
 from read_realsense_image import ReadImage
 
 import rospy
-from std_msgs.msg import String
 from std_msgs.msg import Int16
 
 pub = None
-
+ri = ReadImage()
 
 def DetectColor(image):
     hsv_img = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -83,23 +81,20 @@ def DetectState(image, type):
     output = image.copy()
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    # cv2.imshow("gray", gray)
-
     circles = cv2.HoughCircles(
         gray, cv2.HOUGH_GRADIENT, 1, 20, param1=50, param2=30, minRadius=10, maxRadius=30)
 
     if circles is not None:
         circles = np.uint16(np.around(circles))
         a, b, c = circles.shape
-        print(a, b, c)
         for i in range(b):
             cv2.circle(cimage, (circles[0][i][0], circles[0][i][1]),
                        circles[0][i][2], (0, 0, 255), 3, cv2.LINE_AA)
             cv2.circle(cimage, (circles[0][i][0], circles[0][i][1]), 2, (0, 255, 0), 3,
                        cv2.LINE_AA)  # draw center of circle
 
-    # cv2.imshow("circle_img", cimage)
-    # cv2.waitKey(0)
+    cv2.imshow("circle_img", cimage)
+    cv2.waitKey(2000)
 
     overallState = 0
     stateArrow = 0
@@ -129,43 +124,56 @@ def DetectState(image, type):
 
 def PlotLightResult(images):
     for i, image_path in enumerate(images):
-        plt.subplot(1, len(images), i+1)
         image = cv2.imread(image_path)
         image_roi = image[0:260, 400:640]
-        # img = mpimg.imread(image_roi)
-        label = TLState(DetectState(image_roi, TLType.regular.value)).name
-        plt.title(label)
-        plt.imshow(image_roi)
-    plt.show()
+
+        state = DetectState(image_roi, TLType.regular.value)
+        if state > 0:
+            label = TLState(state).name
+            print("detect result: " + label)
+
+        cv2.imshow("image_roi", image_roi)
+        cv2.waitKey(2000)
 
 
 def PlotRealsenseResult(image):
-    # image_roi = image[0:200, 300:380]
     image_roi = image[0:260, 400:640]
 
-    # cv2.imshow("img", image_roi)
+    state = DetectState(image_roi, TLType.regular.value)
+    if state > 0:
+        label = TLState(state).name
+        print("detect result: " + label)
+    else:
+        print("can not detect image result")
+    cv2.imshow("image_roi", image_roi)
+    cv2.waitKey(2000)
 
-    img = image_roi
-    label = TLState(DetectState(image_roi, TLType.regular.value)).name
-    # plt.plot()
-    # plt.title(label)
-    # plt.imshow(img)
-    # plt.show()
-    print(label)
-    # cv2.waitKey(0)
+    return state
 
 
 def callback(data):
-    rospy.loginfo(rospy.get_caller_id() + "I get traffic light: %s", data.data)
-    ri = ReadImage()
+
+    if data.data != -1:
+        return None
+
+    rospy.loginfo(rospy.get_caller_id() +
+        "I get traffic light: %s", data.data)
+
+
     image = ri.read()
     if image is not None:
         color_idx = PlotRealsenseResult(image)
-
-        if color_idx == 0 or color_idx == 1:  # 0 red, 1 green
-            pub.publish(Int16(color_idx))
     else:
-        print("can not read realsense image")
+        return None
+
+    if color_idx == 1:
+        pub.publish(Int16(0))
+    elif color_idx == 3:  # 0 red, 1 green
+        pub.publish(Int16(1))
+    else:
+        print("can not detect realsense image result")
+
+    time.sleep(1)
 
 
 def ROSSubscribe():
@@ -190,11 +198,11 @@ if __name__ == "__main__":
     # PlotLightResult(light_img_path)
 
     # #Test 2.  use realsense capture image
-    # ri = ReadImage()
-    # image = ri.read()
-    # if image is not None:
-    #     PlotRealsenseResult(image)
-    # else:
-    #     print("can not read realsense image")
+    ri = ReadImage()
+    image = ri.read()
+    if image is not None:
+        PlotRealsenseResult(image)
+    else:
+        print("can not read realsense image")
 
-    ROSSubscribe()
+    # ROSSubscribe()
