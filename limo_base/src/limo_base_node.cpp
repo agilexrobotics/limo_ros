@@ -47,16 +47,9 @@ int main(int argc, char* argv[]) {
   }
 
   ros::Rate rate(50);
-  int count = 0;
   while (ros::ok()) {
     ros::spinOnce();
     messenger.PublishStateToROS();
-
-    if(count>=20){
-      robot->EnableCommandedMode();
-      count=0;
-    }
-    count++;
     rate.sleep();
   }
 

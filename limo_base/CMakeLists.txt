@@ -110,7 +110,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES limo_base
-#  CATKIN_DEPENDS limo_msgs roscpp rospy ugv_sdk
+#  CATKIN_DEPENDS limo_msgs 
 #  DEPENDS system_lib
 )
 

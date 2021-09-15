@@ -171,19 +171,22 @@ void LimoROSMessenger::GenerateImuMsg(const LimoState &state) {
   imu_data_.angular_velocity.y = -state.imu_gyro_.gyro_y * DEG_TO_RAD;
   imu_data_.angular_velocity.z = -state.imu_gyro_.gyro_z * DEG_TO_RAD;
 
-  // printf("%f, %f, %f\n", state.imu_euler_.roll, state.imu_euler_.pitch,
-  //       state.imu_euler_.yaw);
-  tf::Quaternion q;
-  q.setRPY(state.imu_euler_.roll * DEG_TO_RAD,
-           state.imu_euler_.pitch * DEG_TO_RAD,
-           state.imu_euler_.yaw * DEG_TO_RAD);
-  tf::Quaternion q2(1, 0, 0, 0);
-  tf::Quaternion q_trans = q2 * q;
+  static double yaw = 0.0;
+  yaw += imu_data_.angular_velocity.z * 0.02;
 
-  imu_data_.orientation.x = q_trans.x();
-  imu_data_.orientation.y = q_trans.y();
-  imu_data_.orientation.z = q_trans.z();
-  imu_data_.orientation.w = q_trans.w();
+  if (yaw > M_PI) {
+    yaw -= 2 * M_PI;
+  } else if (yaw < -M_PI) {
+    yaw += 2 * M_PI;
+  }
+
+  tf::Quaternion q;
+  q.setRPY(0.0, 0.0, yaw);
+
+  imu_data_.orientation.x = q.x();
+  imu_data_.orientation.y = q.y();
+  imu_data_.orientation.z = q.z();
+  imu_data_.orientation.w = q.w();
 
   imu_data_.linear_acceleration_covariance[0] = 1.0f;
   imu_data_.linear_acceleration_covariance[4] = 1.0f;
