@@ -144,8 +144,7 @@ file(GLOB SOURCE_FILE_NAMES
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(limo_base_node src/limo_base_node.cpp ${SOURCE_FILE_NAMES})
-add_executable(limo_listen_path nodes/limo_listen_path.cpp)
-add_executable(send_goals nodes/send_goals.cpp)
+add_dependencies(limo_base_node ${catkin_EXPORTED_TARGETS})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -161,8 +160,6 @@ add_executable(send_goals nodes/send_goals.cpp)
 target_link_libraries(limo_base_node
   ${catkin_LIBRARIES}
 )
-target_link_libraries(limo_listen_path ${catkin_LIBRARIES})
-target_link_libraries(send_goals ${catkin_LIBRARIES})
 
 #############
 ## Install ##
