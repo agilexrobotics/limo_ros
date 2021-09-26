@@ -28,60 +28,79 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "serial_port.h"
-#include <fcntl.h>
+#ifndef LIMO_PROTOCOL_PARSER_H
+#define LIMO_PROTOCOL_PARSER_H
+
+#include <stdint.h>
 
 namespace AgileX {
 
-int SerialPort::openPort() {
-    struct termios termios_opt;
-    const char* addr = path_.c_str();
-    fd_ = open(addr, O_RDWR | O_NOCTTY| O_NDELAY);
+#define FRAME_HEADER 0x55
+#define FRAME_LENGTH 0x0E
 
-    if (fd_ == -1)
-        return -1;
+/*--------------------------- Message IDs ------------------------------*/
+// control group: 0x1
+#define MSG_MOTION_COMMAND_ID 0x111
 
-    if ((fcntl(fd_, F_SETFL, 0)) < 0) {
-        return -1;
-    }
-    if (tcgetattr(fd_, &termios_opt) != 0) {
-        return -1;
-    }
+// state feedback group: 0x2
+#define MSG_SYSTEM_STATE_ID 0x211
+#define MSG_MOTION_STATE_ID 0x221
 
-    cfmakeraw(&termios_opt);
-    //set speed
-    cfsetispeed(&termios_opt, baudrate_);
-    cfsetospeed(&termios_opt, baudrate_);
+#define MSG_ACTUATOR1_HS_STATE_ID 0x251
+#define MSG_ACTUATOR2_HS_STATE_ID 0x252
+#define MSG_ACTUATOR3_HS_STATE_ID 0x253
+#define MSG_ACTUATOR4_HS_STATE_ID 0x254
 
-    //set databits
-    termios_opt.c_cflag |= (CLOCAL|CREAD);
-    termios_opt.c_cflag &= ~CSIZE;
-    termios_opt.c_cflag |= CS8;
+#define MSG_ACTUATOR1_LS_STATE_ID 0x261
+#define MSG_ACTUATOR2_LS_STATE_ID 0x262
+#define MSG_ACTUATOR3_LS_STATE_ID 0x263
+#define MSG_ACTUATOR4_LS_STATE_ID 0x264
 
-    //set parity
-    termios_opt.c_cflag &= ~PARENB;
-    termios_opt.c_iflag &= ~INPCK;
+// sensor data group: 0x3
+#define MSG_ODOMETRY_ID  0x311
+#define MSG_IMU_ACCEL_ID 0x321
+#define MSG_IMU_GYRO_ID  0x322
+#define MSG_IMU_EULER_ID 0x323
 
-    //set stopbits
-    termios_opt.c_cflag &= ~CSTOPB;
-    termios_opt.c_cc[VTIME] = 0;
-    termios_opt.c_cc[VMIN] = 1;
-    tcflush(fd_,TCIFLUSH);
+#define MSG_CTRL_MODE_CONFIG_ID 0x421
 
-    if (tcsetattr(fd_, TCSANOW, &termios_opt) != 0) {
-        return -1;
-    }
+// limo protocol data format
+typedef struct {
+    double stamp;
+    uint16_t id;
+    uint8_t data[8];
+    uint8_t count;
+} LimoFrame;
 
-    return 0;
+typedef struct {
+    double accel_x;
+    double accel_y;
+    double accel_z;
+    double gyro_x;
+    double gyro_y;
+    double gyro_z;
+    double roll;
+    double pitch;
+    double yaw;
+} ImuData;
+
+enum {
+    LIMO_WAIT_HEADER = 0,
+    LIMO_WAIT_LENGTH,
+    LIMO_WAIT_ID_HIGH,
+    LIMO_WAIT_ID_LOW,
+    LIMO_WAIT_DATA,
+    LIMO_COUNT,
+    LIMO_CHECK,
+};
+
+enum {
+    MODE_FOUR_DIFF = 0x00,
+    MODE_ACKERMANN = 0x01,
+    MODE_MCNAMU = 0x02,
+    MODE_UNKNOWN = 0xff,
+};
+
 }
 
-int SerialPort::closePort() {
-    if (close(fd_) < 0) {
-        return -1;
-    }
-    else {
-        return 0;
-    }
-}
-
-}
+#endif  // LIMO_PROTOCOL_H

@@ -28,60 +28,41 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "serial_port.h"
-#include <fcntl.h>
+#ifndef SERIAL_PORT_H
+#define SERIAL_PORT_H
+
+#include <termios.h>
+#include <unistd.h>
+#include <stdint.h>
+#include <iostream>
 
 namespace AgileX {
 
-int SerialPort::openPort() {
-    struct termios termios_opt;
-    const char* addr = path_.c_str();
-    fd_ = open(addr, O_RDWR | O_NOCTTY| O_NDELAY);
+class SerialPort {
+public:
+    SerialPort(std::string pathname, uint32_t rate = B38400): path_(pathname), baudrate_(rate) {}
 
-    if (fd_ == -1)
-        return -1;
-
-    if ((fcntl(fd_, F_SETFL, 0)) < 0) {
-        return -1;
-    }
-    if (tcgetattr(fd_, &termios_opt) != 0) {
-        return -1;
+    ~SerialPort() {
+        if (isOpen() != -1) {
+            closePort();
+        }
     }
 
-    cfmakeraw(&termios_opt);
-    //set speed
-    cfsetispeed(&termios_opt, baudrate_);
-    cfsetospeed(&termios_opt, baudrate_);
+    int openPort();
+    int closePort();
 
-    //set databits
-    termios_opt.c_cflag |= (CLOCAL|CREAD);
-    termios_opt.c_cflag &= ~CSIZE;
-    termios_opt.c_cflag |= CS8;
+    std::string getDevPath() { return path_; }
+    int isOpen() { return fd_ >= 0 ? 0 : -1; }
 
-    //set parity
-    termios_opt.c_cflag &= ~PARENB;
-    termios_opt.c_iflag &= ~INPCK;
+    inline int readByte(uint8_t *data) { return read(fd_, data, 1); }
+    inline int writeData(const uint8_t *buf, uint16_t length) { return write(fd_, buf, length); }
 
-    //set stopbits
-    termios_opt.c_cflag &= ~CSTOPB;
-    termios_opt.c_cc[VTIME] = 0;
-    termios_opt.c_cc[VMIN] = 1;
-    tcflush(fd_,TCIFLUSH);
+private:
+    std::string path_;
+    uint32_t baudrate_;
+    int fd_;
+};
 
-    if (tcsetattr(fd_, TCSANOW, &termios_opt) != 0) {
-        return -1;
-    }
-
-    return 0;
 }
 
-int SerialPort::closePort() {
-    if (close(fd_) < 0) {
-        return -1;
-    }
-    else {
-        return 0;
-    }
-}
-
-}
+#endif // SERIAL_PORT_H

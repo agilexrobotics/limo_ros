@@ -1,38 +1,17 @@
+<?xml version="1.0"?>
 <launch> 
     <!-- ttyTHS1 for NVIDIA nano serial port-->
     <!-- ttyUSB0 for IPC USB serial port -->
-    <arg name="port_name" default="ttyTHS1"/>
-    <arg name="odom_topic_name" default="odom" />
-    <arg name="open_rviz" default="false" />
-    <arg name="motion_mode" default="diff" /> <!-- diff, ackermann, mcnamu-->
+    <arg name="port_name" default="ttyTHS1" />
+    <arg name="use_mcnamu" default="false" />
 
     <include file="$(find limo_base)/launch/limo_base.launch">
         <arg name="port_name" default="$(arg port_name)" />
-        <arg name="odom_topic_name" default="$(arg odom_topic_name)" />
-        <arg name="motion_mode" default="$(arg motion_mode)" />
+        <arg name="use_mcnamu" default="$(arg use_mcnamu)" />
     </include>
 
-    <include file="$(find ydlidar_ros)/launch/X2L.launch">
-    </include>
+    <include file="$(find ydlidar_ros)/launch/X2L.launch" />
 
-    <!-- hi226 imu -->
-    <!-- <include file="$(find serial_imu)/launch/hi226.launch" /> -->
-
-    <!-- mpu6050 imu -->
-    <!-- <node name="limo_imu_driver" pkg="limo_imu_driver" type="limo_imu_driver" output="screen" /> -->
-    
-    <node pkg="tf" type="static_transform_publisher" name="base_link_to_imu" args="0.0 0.0 0.0 0.0 0.0  0.0 /base_link /imu_link 10" />
-    
-    <!-- use robot pose ekf to provide odometry-->
-    <node pkg="robot_pose_ekf" name="robot_pose_ekf" type="robot_pose_ekf">
-        <param name="output_frame" value="odom" />
-        <param name="base_footprint_frame" value="base_link"/>
-        <remap from="imu_data" to="imu" />
-    </node>
-
-
-    <!-- display -->
-    <group if="$(arg open_rviz)">
-        <node name="rviz" pkg="rviz" type="rviz" required="true" args="-d $(find limo_bringup)/config_files/demo_2d.rviz" />
-    </group>
+    <node pkg="tf" type="static_transform_publisher" name="base_link_to_laser_link" args="0.105 0.0 0.08 0.0 0.0 0.0 /base_link /laser_link 10" />
+    <node pkg="tf" type="static_transform_publisher" name="base_link_to_imu_link" args="0.0 0.0 0.0 0.0 0.0 0.0 /base_link /imu_link 10" />
 </launch>

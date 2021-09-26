@@ -1,29 +1,36 @@
-## start the motor driver
+# limo_ros
+This repository contains ROS packages for limo. 
 
-```shell
-roslaunch limo_bringup limo_start.launch  
-# this launch will start motor driver, lidar, imu, robot pose ekf
+<img src="limo_description/img/limo.jpg" width="640" height="208" /> 
+
+## Packages
+ 
+ 
+* limo_base: ROS wrapper for limo
+* limo_bringup: launch and configuration files to start ROS nodes
+
+
+## Build from source code
+Clone the repository and catkin_make:
+```
+    $ cd ~/catkin_ws/src
+    $ git clone https://github.com/agilexrobotics/limo_ros.git
+    $ cd ..
+    $ catkin_make
 ```
 
-## control Limo by keyboard
 
-first launch the `limo_start.launch` above then launch the keyboard
+## Usage
 
-```shell
-# this will publish /cmd_vel topic
-roslaunch limo_bringup limo_teletop_keyboard.launch
-```
+* Start the base node for limo
 
-## start the move base for navigation
+    ```
+    $ roslaunch limo_bringup limo_start.launch
+    ```
 
-first launch the `limo_start.launch` above then launch the navigation
 
-```shell
-# this will launch the amcl and move_base node
-roslaunch limo_bringup limo_navigation.launch
-```
-## build the 2d map
+* Start the keyboard tele-op node
 
-If you want to build the map, you can use `cartographer` , see [the cartographer documents](https://google-cartographer-ros.readthedocs.io/en/latest/)
-
-And then use map_server to save the map, see [map_server](http://wiki.ros.org/map_server)
+    ```
+    $ roslaunch limo_bringup limo_teleop_keyboard.launch
+    ```
