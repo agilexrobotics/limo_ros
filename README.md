@@ -1,7 +1,7 @@
 # limo_ros
 This repository contains ROS packages for limo. 
 
-<img src="limo_description/img/limo.jpg" width="640" height="208" /> 
+<img src="limo_bringup/img/limo.jpg" width="640" height="208" /> 
 
 ## Packages
  
