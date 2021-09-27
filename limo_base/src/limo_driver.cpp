@@ -42,6 +42,10 @@ LimoDriver::LimoDriver()  {
     private_nh.param<bool>("pub_odom_tf", pub_odom_tf_, false);
     private_nh.param<bool>("use_mcnamu", use_mcnamu_, false);
 
+    if(use_mcnamu_) {
+        motion_mode_ = MODE_MCNAMU;
+    }
+
     odom_publisher_ = nh.advertise<nav_msgs::Odometry>("/odom", 50, true);
     status_publisher_ = nh.advertise<limo_base::LimoStatus>("/limo_status", 10, true);
     imu_publisher_ = nh.advertise<sensor_msgs::Imu>("/imu", 10, true);
@@ -360,7 +364,7 @@ void LimoDriver::twistCmdCallback(const geometry_msgs::TwistConstPtr& msg) {
             break;
         }
         case MODE_MCNAMU: {
-            setMotionCommand(msg->linear.x, msg->linear.y, msg->angular.z, 0);
+            setMotionCommand(msg->linear.x, msg->angular.z, msg->linear.y, 0);
             break;
         }
         default:
@@ -451,6 +455,9 @@ void LimoDriver::publishOdometry(double stamp, double linear_velocity,
             break;
         }
         case MODE_MCNAMU: {
+            vx = linear_velocity;
+            vy = lateral_velocity;
+            wz = angular_velocity;
             break;
         }
         default:
