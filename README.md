@@ -1,14 +1,15 @@
 # limo_ros
 This repository contains ROS packages for limo. 
 
-<img src="limo_bringup/img/limo.jpg" width="640" height="208" /> 
+<img src="limo_description/img/limo.jpg" width="640" height="208" /> 
 
 ## Packages
  
  
 * limo_base: ROS wrapper for limo
 * limo_bringup: launch and configuration files to start ROS nodes
-
+* limo_description: URDF model for limo 
+* limo_gazebo_sim: limo gazebo simulation
 
 ## Build from source code
 Clone the repository and catkin_make:

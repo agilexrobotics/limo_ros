@@ -94,7 +94,7 @@ private:
     ImuData imu_data_;
     uint8_t motion_mode_;  // current motion type
 
-    static constexpr double max_inner_angle_ = 28.0;  // degree
+    static constexpr double max_inner_angle_ = 0.48869;  // 28 degree
     static constexpr double track_ = 0.172;           // m (left right wheel distance)
     static constexpr double wheelbase_ = 0.2;         // m (front rear wheel distance)
     static constexpr double left_angle_scale_ = 2.47;
