@@ -35,3 +35,9 @@ Clone the repository and catkin_make:
     ```
     $ roslaunch limo_bringup limo_teleop_keyboard.launch
     ```
+
+* Start gazebo simulation
+
+    ```
+    $ roslaunch roslaunch limo_gazebo_sim limo_four_diff.launch
+    ```
