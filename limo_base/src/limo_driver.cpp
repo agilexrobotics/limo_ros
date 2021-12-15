@@ -547,22 +547,15 @@ double LimoDriver::convertInnerAngleToCentral(double inner_angle) {
 
 double LimoDriver::convertCentralAngleToInner(double central_angle) {
     
-
-        double a = 2 * wheelbase_ * std::sin(fabs(central_angle));
-        double b = (2 * wheelbase_ * std::cos(fabs(central_angle))) - (track_ * std::sin(fabs(central_angle)));
-
-        double x =  a/b; 
-        double inner_angle = std::atan(x);
+    double inner_angle = std::atan(2 * wheelbase_ * std::sin(fabs(central_angle)) /
+                                   (2 * wheelbase_ * std::cos(fabs(central_angle)) -
+                                    track_ * std::sin(fabs(central_angle))));
 
 
-/**/
     if (central_angle < 0 ) {
         inner_angle = -inner_angle;
     }
-    else 
-    {
-        inner_angle = inner_angle;
-    }
+
 
     return inner_angle;
 }
