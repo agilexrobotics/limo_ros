@@ -29,6 +29,7 @@
  */
 
 #include "limo_driver.h"
+int flag=0; 
 
 namespace AgileX {
 
@@ -242,13 +243,13 @@ void LimoDriver::parseFrame(const LimoFrame& frame) {
                                         (frame.data[2] << 8)) / 100.0);
             imu_data_.gyro_z = degToRad(static_cast<int16_t>((frame.data[5] & 0xff) |
                                         (frame.data[4] << 8)) / 100.0);
-            publishIMUData(frame.stamp);
             break;
         }
         case MSG_IMU_EULER_ID: {
             imu_data_.yaw = static_cast<int16_t>((frame.data[1] & 0xff) | (frame.data[0] << 8)) / 100.0;
             imu_data_.pitch = static_cast<int16_t>((frame.data[3] & 0xff) | (frame.data[2] << 8)) / 100.0;
             imu_data_.roll = static_cast<int16_t>((frame.data[5] & 0xff) | (frame.data[4] << 8)) / 100.0;
+            publishIMUData(frame.stamp);
             break;
         }
         default:
@@ -342,6 +343,11 @@ void LimoDriver::twistCmdCallback(const geometry_msgs::TwistConstPtr& msg) {
         }
         case MODE_ACKERMANN: {
             double r = msg->linear.x / msg->angular.z;
+            if(fabs(r) < track_/2.0)
+            {
+                if(r==0)r = msg->angular.z/fabs(msg->angular.z)*(track_/2.0+0.01);
+                else r = r/fabs(r)*(track_/2.0+0.01);
+            }
             double central_angle = std::atan(wheelbase_ / r);
             double inner_angle = convertCentralAngleToInner(central_angle);
 
@@ -354,7 +360,7 @@ void LimoDriver::twistCmdCallback(const geometry_msgs::TwistConstPtr& msg) {
 
             double steering_angle;
             if (inner_angle > 0) {
-                steering_angle = inner_angle / left_angle_scale_;
+                steering_angle = inner_angle / right_angle_scale_;
             }
             else {
                 steering_angle = inner_angle / right_angle_scale_;
@@ -374,28 +380,35 @@ void LimoDriver::twistCmdCallback(const geometry_msgs::TwistConstPtr& msg) {
 }
 
 void LimoDriver::publishIMUData(double stamp) {
-    static double last_stamp = stamp;
-    double dt = stamp - last_stamp;
-    last_stamp = stamp;
-
     sensor_msgs::Imu imu_msg;
+       
     imu_msg.header.stamp = ros::Time(stamp);
     imu_msg.header.frame_id = "imu_link";
 
     imu_msg.linear_acceleration.x = imu_data_.accel_x;
-    imu_msg.linear_acceleration.y = -imu_data_.accel_y;
-    imu_msg.linear_acceleration.z = -imu_data_.accel_z;
+    imu_msg.linear_acceleration.y = imu_data_.accel_y;
+    imu_msg.linear_acceleration.z = imu_data_.accel_z;
 
     imu_msg.angular_velocity.x = imu_data_.gyro_x;
-    imu_msg.angular_velocity.y = -imu_data_.gyro_y;
-    imu_msg.angular_velocity.z = -imu_data_.gyro_z;
-
-    static double yaw = 0.0;
-    yaw += imu_msg.angular_velocity.z * dt;
-    yaw = normalizeAngle(yaw);
+    imu_msg.angular_velocity.y = imu_data_.gyro_y;
+    imu_msg.angular_velocity.z = imu_data_.gyro_z;
 
     tf::Quaternion q;
-    q.setRPY(0.0, 0.0, yaw);
+    q.setRPY(0.0, 0.0, degToRad(imu_data_.yaw));
+
+    if (flag==0)
+    {
+        present_theta_ = last_theta_ = imu_data_.yaw;
+        flag=1;    
+        
+    }
+    //ROS_INFO("flag:%d",flag);
+    present_theta_ = imu_data_.yaw;
+    delta_theta_ = present_theta_ - last_theta_;
+    if(delta_theta_< 0.1 && delta_theta_> -0.1) delta_theta_=0;
+    real_theta_ = real_theta_ + delta_theta_;
+    last_theta_ = present_theta_;
+    //ROS_INFO("present_theta_:%f;delta_theta_:%f;real_theta_:%f;last_theta_:%f",present_theta_,delta_theta_,real_theta_,last_theta_);
 
     imu_msg.orientation.x = q.x();
     imu_msg.orientation.y = q.y();
@@ -463,14 +476,13 @@ void LimoDriver::publishOdometry(double stamp, double linear_velocity,
         default:
             break;
     }
+    rad = degToRad(real_theta_);
 
-    position_x_ += cos(theta_) * vx * dt - sin(theta_) * vy * dt;
-    position_y_ += sin(theta_) * vx * dt + cos(theta_) * vy * dt;
-    theta_ += wz * dt;
-    theta_ = normalizeAngle(theta_);
+    position_x_ += cos(rad) * vx * dt - sin(rad) * vy * dt;
+    position_y_ += sin(rad) * vx * dt + cos(rad) * vy * dt;
 
-    geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(theta_);
-
+    geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(rad);
+    //std::cout<< "odom_quat:" << odom_quat<<std::endl;
     if (pub_odom_tf_) {
         geometry_msgs::TransformStamped tf_msg;
         tf_msg.header.stamp = ros::Time::now();
@@ -534,12 +546,22 @@ double LimoDriver::convertInnerAngleToCentral(double inner_angle) {
 }
 
 double LimoDriver::convertCentralAngleToInner(double central_angle) {
-    double inner_angle = std::atan(2 * wheelbase_ * std::sin(fabs(central_angle)) /
-                                   (2 * wheelbase_ * std::cos(fabs(central_angle)) -
-                                    track_ * std::sin(fabs(central_angle))));
+    
 
-    if (central_angle < 0) {
+        double a = 2 * wheelbase_ * std::sin(fabs(central_angle));
+        double b = (2 * wheelbase_ * std::cos(fabs(central_angle))) - (track_ * std::sin(fabs(central_angle)));
+
+        double x =  a/b; 
+        double inner_angle = std::atan(x);
+
+
+/**/
+    if (central_angle < 0 ) {
         inner_angle = -inner_angle;
+    }
+    else 
+    {
+        inner_angle = inner_angle;
     }
 
     return inner_angle;
