@@ -4,12 +4,11 @@ This repository contains ROS packages for limo.
 <img src="limo_description/img/limo.jpg" width="640" height="208" /> 
 
 ## Packages
- 
- 
+
+
 * limo_base: ROS wrapper for limo
 * limo_bringup: launch and configuration files to start ROS nodes
 * limo_description: URDF model for limo 
-* limo_gazebo_sim: limo gazebo simulation
 
 ## Build from source code
 Clone the repository and catkin_make:
@@ -30,14 +29,10 @@ Clone the repository and catkin_make:
     ```
 
 
-* Start the keyboard tele-op node
+* Start the keyboard teleop node
 
     ```
     $ roslaunch limo_bringup limo_teleop_keyboard.launch
     ```
 
-* Start gazebo simulation
-
-    ```
-    $ roslaunch roslaunch limo_gazebo_sim limo_four_diff.launch
-    ```
+    
