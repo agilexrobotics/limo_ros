@@ -8,13 +8,14 @@ This repository contains ROS packages for limo.
 
 * limo_base: ROS wrapper for limo
 * limo_bringup: launch and configuration files to start ROS nodes
-* limo_description: URDF model for limo 
+* limo_description: URDF model for limo
+* limo_gazebo_sim: Gazebo simulation for limo
 
 ## Build from source code
 Clone the repository and catkin_make:
 ```
     $ cd ~/catkin_ws/src
-    $ git clone https://github.com/agilexrobotics/limo_ros.git
+    $ git clone https://github.com/westonrobot/limo_ros.git
     $ cd ..
     $ catkin_make
 ```
