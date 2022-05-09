@@ -21,4 +21,8 @@
   <run_depend>gazebo_msgs</run_depend>    
   <run_depend>limo_description</run_depend>
   <run_depend>rostopic</run_depend>
+  <run_depend>ros_control</run_depend>
+  <run_depend>joint-state-publisher-gui</run_depend>
+  <run_depend>rqt-robot-steering</run_depend>
+  <run_depend>teleop-twist-keyboard</run_depend>
 </package>
