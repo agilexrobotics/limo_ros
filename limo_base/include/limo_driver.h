@@ -59,6 +59,8 @@ private:
     void setMotionCommand(double linear_vel, double steer_angle,
                           double lateral_vel, double angular_vel);
     void enableCommandedMode();
+    void enableMcMode();
+
     void publishOdometry(double stamp, double linear_velocity,
                          double angular_velocity, double lateral_velocity,
                          double steering_angle);
@@ -90,16 +92,16 @@ private:
     double position_x_ = 0.0;
     double position_y_ = 0.0;
     double theta_ = 0.0;
-    double present_theta_;
-    double last_theta_;
-    double delta_theta_;
-    double real_theta_;
-    double rad;
-    
+    double last_theta_ = 0.0;
+    double delta_theta_ = 0.0;
+    double present_theta_ = 0.0;
+    double real_theta_ = 0.0;
+    double rad = 0.0;    
+
     ImuData imu_data_;
     uint8_t motion_mode_;  // current motion type
 
-    static constexpr double max_inner_angle_ = 0.48869;  // 28 degree
+    static constexpr double max_inner_angle_ = 28.0;  // degree
     static constexpr double track_ = 0.172;           // m (left right wheel distance)
     static constexpr double wheelbase_ = 0.2;         // m (front rear wheel distance)
     static constexpr double left_angle_scale_ = 2.47;

@@ -43,10 +43,6 @@ LimoDriver::LimoDriver()  {
     private_nh.param<bool>("pub_odom_tf", pub_odom_tf_, false);
     private_nh.param<bool>("use_mcnamu", use_mcnamu_, false);
 
-    if(use_mcnamu_) {
-        motion_mode_ = MODE_MCNAMU;
-    }
-
     odom_publisher_ = nh.advertise<nav_msgs::Odometry>("/odom", 50, true);
     status_publisher_ = nh.advertise<limo_base::LimoStatus>("/limo_status", 10, true);
     imu_publisher_ = nh.advertise<sensor_msgs::Imu>("/imu", 10, true);
@@ -57,6 +53,10 @@ LimoDriver::LimoDriver()  {
         port_name= "/dev/" + port_name;
         connect(port_name, B460800);
         enableCommandedMode();
+    if(use_mcnamu_) {
+        motion_mode_ = MODE_MCNAMU;
+        enableMcMode();
+    }
         ROS_INFO("open the serial port: %s", port_name.c_str());
     }
 }
@@ -83,8 +83,8 @@ void LimoDriver::connect(std::string dev_name, uint32_t bouadrate) {
     port_ = std::shared_ptr<SerialPort>(new SerialPort(dev_name, bouadrate));
     if (port_->openPort() == 0) {
         read_data_thread_ = std::shared_ptr<std::thread>(
-            new std::thread(std::bind(&LimoDriver::readData, this)));
-    }
+            new std::thread(std::bind(&LimoDriver::readData, this)));  //std::bind() 绑定readData的参数 
+    }   
     else {
         ROS_ERROR("Failed to open %s", port_->getDevPath().c_str());
         port_->closePort();
@@ -299,6 +299,24 @@ void LimoDriver::enableCommandedMode() {
     sendFrame(frame);
 }
 
+void LimoDriver::enableMcMode()
+{
+    LimoFrame frame;
+    frame.id = MSG_CTRL_MODE_CONFIG_ID;
+    frame.data[0] = 0x01;
+    frame.data[1] = 0;
+    frame.data[2] = 0x01;
+    frame.data[3] = 0;
+    frame.data[4] = 0;
+    frame.data[5] = 0;
+    frame.data[6] = 0;
+    frame.data[7] = 0;
+
+    sendFrame(frame);
+    ROS_INFO("use_mcnamu");
+
+}
+
 void LimoDriver::setMotionCommand(double linear_vel, double angular_vel,
                                   double lateral_velocity, double steering_angle) {
     LimoFrame frame;
@@ -343,11 +361,13 @@ void LimoDriver::twistCmdCallback(const geometry_msgs::TwistConstPtr& msg) {
         }
         case MODE_ACKERMANN: {
             double r = msg->linear.x / msg->angular.z;
+            
             if(fabs(r) < track_/2.0)
             {
                 if(r==0)r = msg->angular.z/fabs(msg->angular.z)*(track_/2.0+0.01);
                 else r = r/fabs(r)*(track_/2.0+0.01);
             }
+            
             double central_angle = std::atan(wheelbase_ / r);
             double inner_angle = convertCentralAngleToInner(central_angle);
 
@@ -546,16 +566,13 @@ double LimoDriver::convertInnerAngleToCentral(double inner_angle) {
 }
 
 double LimoDriver::convertCentralAngleToInner(double central_angle) {
-    
     double inner_angle = std::atan(2 * wheelbase_ * std::sin(fabs(central_angle)) /
                                    (2 * wheelbase_ * std::cos(fabs(central_angle)) -
                                     track_ * std::sin(fabs(central_angle))));
 
-
-    if (central_angle < 0 ) {
+    if (central_angle < 0) {
         inner_angle = -inner_angle;
     }
-
 
     return inner_angle;
 }
