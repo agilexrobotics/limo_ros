@@ -10,7 +10,7 @@
         <arg name="use_mcnamu" default="$(arg use_mcnamu)" />
     </include>
 
-    <include file="$(find ydlidar_ros)/launch/X2L.launch" />
+    <include file="$(find ydlidar_ros_driver)/launch/X2.launch" />
 
     <node pkg="tf" type="static_transform_publisher" name="base_link_to_laser_link" args="0.105 0.0 0.08 0.0 0.0 0.0 /base_link /laser_link 10" />
     <node pkg="tf" type="static_transform_publisher" name="base_link_to_imu_link" args="0.0 0.0 0.0 0.0 0.0 0.0 /base_link /imu_link 10" />
